@@ -11,7 +11,6 @@ import {
   User,
   UserRound,
   BriefcaseBusiness,
-  ShieldCheck,
 } from "lucide-react";
 
 import { registerUser } from "@/src/services/auth/auth.service";
@@ -29,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 
-type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
+type UserRole = "CUSTOMER" | "PROVIDER" ;
 
 const roles = [
   {
@@ -43,12 +42,6 @@ const roles = [
     label: "Provider",
     description: "List equipment",
     icon: BriefcaseBusiness,
-  },
-  {
-    value: "ADMIN",
-    label: "Admin",
-    description: "Manage platform",
-    icon: ShieldCheck,
   },
 ];
 
@@ -73,16 +66,7 @@ export default function RegisterForm() {
       setLoading(true);
       setErrors([]);
 
-      const payload =
-        form?.role === "ADMIN"
-          ? {
-              name: form.name,
-              email: form.email,
-              password: form.password,
-            }
-          : form;
-
-      await registerUser(payload);
+      await registerUser(form);
 
       router.push("/login");
     } catch (err: any) {
@@ -195,7 +179,7 @@ export default function RegisterForm() {
             <div className="space-y-3">
               <Label>Account Type</Label>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {roles.map((item) => {
                   const Icon = item.icon;
 
