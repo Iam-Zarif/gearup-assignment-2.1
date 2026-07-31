@@ -2,6 +2,7 @@
 
 import { AuthContext, User } from "@/src/context/AuthContext";
 import { getCookie, removeCookie, setCookie } from "@/src/lib/cookies";
+import { loginUser } from "@/src/services/auth/auth.service";
 import { ReactNode, useEffect, useState } from "react";
 
 interface Props {
@@ -52,39 +53,34 @@ export default function AuthProvider({ children }: Props) {
     loadUser();
   }, []);
 
-  async function login(email: string, password: string) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-      {
-        method: "POST",
+  async function login(
+    email: string,
+    password: string
+  ) {
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await loginUser({
+      email,
+      password,
+    });
 
-        credentials: "include",
 
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      },
+    const { accessToken, user } = response.data;
+
+
+    await setCookie(
+      "accessToken",
+      accessToken
     );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Login failed");
-    }
-
-    const { accessToken, user } = data.data;
-
-    await setCookie("accessToken", accessToken);
 
     setAccessToken(accessToken);
 
     setUser(user);
+
+
+    return user;
   }
+
 
   async function register(payload: any) {
     const response = await fetch(

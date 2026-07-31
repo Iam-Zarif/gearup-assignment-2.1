@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail } from "lucide-react";
@@ -20,40 +20,50 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function LoginForm() {
+  const { login } = useAuth();
   const router = useRouter();
-
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
-
   const [rememberMe, setRememberMe] = useState(false);
-
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (
+  e: FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    setError("");
 
-      setError("");
+    await login(
+      form.email,
+      form.password
+    );
 
-      await loginUser(form);
 
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+    router.push("/");
+
+
+  } catch (err:any) {
+
+    setError(
+      err?.response?.data?.message ||
+      err.message ||
+      "Invalid email or password"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="w-full max-w-sm mx-auto">
@@ -155,7 +165,7 @@ export default function LoginForm() {
               </div>
             )}
 
-            <Button
+            <Button type="submit"
               disabled={loading}
               className="h-12 w-full rounded-xl text-base font-semibold"
             >
