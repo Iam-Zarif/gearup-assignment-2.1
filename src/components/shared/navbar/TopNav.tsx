@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Menu, ShoppingCart, UserCircle, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   label: string;
@@ -33,7 +34,6 @@ const CUSTOMER_LINKS: NavItem[] = [
     label: "Categories",
     href: "/category",
   },
-  
 ];
 
 const PROVIDER_LINKS: NavItem[] = [
@@ -56,12 +56,14 @@ const ADMIN_LINKS: NavItem[] = [
 
 export default function TopNavbar() {
   const pathname = usePathname();
-    const HIDDEN_ROUTES = ["/login", "/register"];
+
+  const { user, isLoading, logout } = useAuth();
+
+  const HIDDEN_ROUTES = ["/login", "/register"];
 
   if (HIDDEN_ROUTES.includes(pathname)) {
     return null;
   }
-  const { user, isLoading, logout } = useAuth();
 
   if (isLoading) {
     return (
@@ -78,6 +80,14 @@ export default function TopNavbar() {
         ? PROVIDER_LINKS
         : CUSTOMER_LINKS;
 
+  function isActive(href: string) {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
   return (
     <header
       className="
@@ -88,7 +98,7 @@ export default function TopNavbar() {
       border-b
       bg-background/80
       backdrop-blur
-    "
+      "
     >
       <div
         className="
@@ -99,7 +109,7 @@ export default function TopNavbar() {
         items-center
         justify-between
         px-4
-      "
+        "
       >
         {/* Logo */}
 
@@ -114,7 +124,7 @@ export default function TopNavbar() {
           GearUp
         </Link>
 
-        {/* Desktop */}
+        {/* Desktop Navigation */}
 
         <nav
           className="
@@ -122,33 +132,24 @@ export default function TopNavbar() {
           md:flex
           items-center
           gap-6
-        "
+          "
         >
-         {links
-  .filter((item) => {
-    if (item.href === "/orders") {
-      return !!user;
-    }
+          {links.map((item: NavItem) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "text-sm font-medium transition",
+                isActive(item.href)
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-primary",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
 
-    return true;
-  })
-  .map((item: NavItem) => (
-    <Link
-      key={item.href}
-      href={item.href}
-      className="
-        text-sm
-        font-medium
-        text-muted-foreground
-        hover:text-primary
-        transition
-      "
-    >
-      {item.label}
-    </Link>
-  ))}
-
-          {user?.role === "CUSTOMER" && user && (
+          {user?.role === "CUSTOMER" && (
             <Link href="/orders" className="relative">
               <ShoppingCart size={20} />
 
@@ -168,7 +169,6 @@ export default function TopNavbar() {
           )}
         </nav>
 
-        {/* User */}
 
         <div
           className="
@@ -176,18 +176,16 @@ export default function TopNavbar() {
           md:flex
           items-center
           gap-3
-        "
+          "
         >
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="flex items-center justify-center rounded-full cursor-pointer">
-                  <Avatar>
-                    <AvatarFallback>
-                      {user.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
+                <Avatar className="cursor-pointer">
+                  <AvatarFallback>
+                    {user.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
@@ -209,10 +207,21 @@ export default function TopNavbar() {
           )}
         </div>
 
-        {/* Mobile */}
+        {/* Mobile Menu */}
 
         <Sheet>
-          <SheetTrigger className="md:hidden">
+          <SheetTrigger
+            className="
+    md:hidden
+    flex
+    h-10
+    w-10
+    items-center
+    justify-center
+    rounded-md
+    hover:bg-muted
+  "
+          >
             <Menu size={24} />
           </SheetTrigger>
 
@@ -223,20 +232,38 @@ export default function TopNavbar() {
               flex-col
               gap-5
               mt-10
-            "
+              "
             >
               {links.map((item: NavItem) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="
-                    text-lg
-                    font-medium
-                    "
+                  className={cn(
+                    "text-lg font-medium",
+                    isActive(item.href)
+                      ? "text-primary"
+                      : "text-muted-foreground",
+                  )}
                 >
                   {item.label}
                 </Link>
               ))}
+
+              {user?.role === "CUSTOMER" && (
+                <Link
+                  href="/orders"
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    text-lg
+                    font-medium
+                    "
+                >
+                  <ShoppingCart size={20} />
+                  Orders
+                </Link>
+              )}
 
               {user && (
                 <Button variant="destructive" onClick={logout}>

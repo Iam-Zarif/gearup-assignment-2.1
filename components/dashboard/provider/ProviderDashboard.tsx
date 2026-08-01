@@ -1,9 +1,13 @@
-import React from 'react'
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import ProviderSidebar from "./ProviderSidebar";
 
-const ProviderDashboard = () => {
+
+export default function ProviderDashboard() {
   return (
-    <div>ProviderDashboard</div>
-  )
+    <DashboardLayout sidebar={<ProviderSidebar />}>
+      <h1 className="text-3xl font-bold">
+        Provider Dashboard
+      </h1>
+    </DashboardLayout>
+  );
 }
-
-export default ProviderDashboard
