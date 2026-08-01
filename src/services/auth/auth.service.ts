@@ -36,3 +36,7 @@ export const loginUser = async (
   return response.data;
 };
 
+export async function updateProfile(payload: { name?: string; phone?: string; address?: string; profilePhoto?: string }) {
+  const response = await axiosInstance.patch("/auth/me", payload);
+  return response.data.data;
+}

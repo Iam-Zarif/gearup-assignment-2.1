@@ -1,0 +1,47 @@
+import { axiosInstance } from "@/src/lib/axios";
+import type { ApiResponse, CustomerGear, CustomerPayment, CustomerRental, CustomerReview } from "@/src/types/customer";
+
+export async function getGear(params: Record<string, string | number | undefined> = {}) {
+  const response = await axiosInstance.get<ApiResponse<CustomerGear[]>>("/gear", { params });
+  return { gear: response.data.data, meta: response.data.meta };
+}
+
+export async function getGearById(id: string) {
+  const response = await axiosInstance.get<ApiResponse<CustomerGear>>(`/gear/${id}`);
+  return response.data.data;
+}
+
+export async function createRental(payload: { startDate: string; endDate: string; items: Array<{ gearItemId: string; quantity: number }> }) {
+  const response = await axiosInstance.post<ApiResponse<CustomerRental>>("/rentals", payload);
+  return response.data.data;
+}
+
+export async function getMyRentals() {
+  const response = await axiosInstance.get<ApiResponse<CustomerRental[]>>("/rentals");
+  return response.data.data;
+}
+
+export async function createPaymentSession(rentalOrderId: string) {
+  const response = await axiosInstance.post<ApiResponse<{ checkoutUrl: string | null; sessionId: string; payment: CustomerPayment }>>("/payments/create", { rentalOrderId });
+  return response.data.data;
+}
+
+export async function confirmPayment(sessionId: string) {
+  const response = await axiosInstance.post<ApiResponse<CustomerPayment>>("/payments/confirm", { sessionId });
+  return response.data.data;
+}
+
+export async function getMyPayments() {
+  const response = await axiosInstance.get<ApiResponse<CustomerPayment[]>>("/payments");
+  return response.data.data;
+}
+
+export async function getGearReviews(gearItemId: string) {
+  const response = await axiosInstance.get<ApiResponse<CustomerReview[]>>("/reviews", { params: { gearItemId } });
+  return response.data.data;
+}
+
+export async function createReview(payload: { gearItemId: string; rentalOrderId: string; rating: number; comment?: string }) {
+  const response = await axiosInstance.post<ApiResponse<CustomerReview>>("/reviews", payload);
+  return response.data.data;
+}
