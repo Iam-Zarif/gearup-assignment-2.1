@@ -50,7 +50,7 @@ export default function ProviderSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-16 h-[88vh] max-w-[16rem] w-full rounded-xl border bg-background p-3">
+    <aside className="sticky top-20 h-[88vh] max-w-[16rem] w-full rounded-xl border bg-background p-3">
       <nav className="space-y-1">
         {items?.map((item) => {
           const Icon = item.icon;

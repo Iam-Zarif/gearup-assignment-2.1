@@ -1,18 +1,30 @@
-import DashboardLayout from '@/components/dashboard/DashboardLayout'
-import ProviderSidebar from '@/components/dashboard/provider/ProviderSidebar'
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import ProviderSidebar from "@/components/dashboard/provider/ProviderSidebar";
+import CreateEquipmentForm from "./CreateEquipmentForm";
 
 
-const CreateEquipmentPage = () => {
+
+export default function CreateEquipmentPage() {
   return (
     <DashboardLayout sidebar={<ProviderSidebar />}>
-         
-       <div className="flex min-h-100 items-center justify-center ">
-         <h1 className="text-3xl font-bold">
-        Create Equipment Page
-         </h1>
-       </div>
-       </DashboardLayout>
-  )
-}
 
-export default CreateEquipmentPage
+      <section className="mx-auto w-full space-y-6">
+
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Add Equipment
+          </h1>
+
+          <p className="mt-2 text-muted-foreground">
+            Add new rental equipment to your provider inventory.
+          </p>
+        </div>
+
+
+        <CreateEquipmentForm />
+
+      </section>
+
+    </DashboardLayout>
+  );
+}
