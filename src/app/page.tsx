@@ -19,11 +19,7 @@ export default function Home() {
   }
 
   if (!user) {
-    return (
-      <main>
-         landing page
-      </main>
-    );
+    return <CustomerHome />
   }
 
   if (user.role === "ADMIN") {

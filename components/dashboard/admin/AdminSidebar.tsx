@@ -12,7 +12,7 @@ import {
   ClipboardList,
   CreditCard,
   Star,
-  Settings,
+
 } from "lucide-react";
 
 const items = [
@@ -55,11 +55,6 @@ const items = [
     title: "Reviews",
     href: "/admin/reviews",
     icon: Star,
-  },
-  {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
   },
 ];
 
