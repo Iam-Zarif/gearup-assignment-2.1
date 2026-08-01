@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import AuthProvider from "../components/providers/AuthProvider";
 import TopNavbar from "../components/shared/navbar/TopNav";
+import Footer from "../components/shared/footer/Footer";
 
 
 
@@ -37,7 +38,9 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-full flex flex-col">
         <AuthProvider>
           <TopNavbar/>
-          {children}</AuthProvider>
+          {children}
+          <Footer/>
+          </AuthProvider>
       </body>
     </html>
   );

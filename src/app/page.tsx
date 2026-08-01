@@ -3,7 +3,7 @@
 import { useAuth } from "@/src/context/AuthContext";
 import AdminDashboard from "@/components/dashboard/admin/AdminDashboard";
 import ProviderDashboard from "@/components/dashboard/provider/ProviderDashboard";
-import CustomerHome from "@/components/customer/CustomerHome";
+import CustomerHome from "@/components/customer/home/CustomerHome";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {

@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, ShoppingCart, UserCircle, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { ShoppingCart, UserCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,10 +30,6 @@ const CUSTOMER_LINKS: NavItem[] = [
     label: "Equipment",
     href: "/gear",
   },
-  {
-    label: "Categories",
-    href: "/category",
-  },
 ];
 
 const PROVIDER_LINKS: NavItem[] = [
@@ -41,15 +37,11 @@ const PROVIDER_LINKS: NavItem[] = [
     label: "Dashboard",
     href: "/dashboard/provider",
   },
-  {
-    label: "My Equipment",
-    href: "/dashboard/provider/equipment",
-  },
 ];
 
 const ADMIN_LINKS: NavItem[] = [
   {
-    label: "Admin",
+    label: "Dashboard",
     href: "/dashboard/admin",
   },
 ];
@@ -72,6 +64,8 @@ export default function TopNavbar() {
       </header>
     );
   }
+
+  const isDashboardUser = user?.role === "ADMIN" || user?.role === "PROVIDER";
 
   const links =
     user?.role === "ADMIN"
@@ -101,8 +95,7 @@ export default function TopNavbar() {
       "
     >
       <div
-        className="
-        mx-auto
+        className="mx-auto
         flex
         h-16
         max-w-7xl
@@ -124,37 +117,52 @@ export default function TopNavbar() {
           GearUp
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Admin / Provider */}
 
-        <nav
-          className="
-          hidden
-          md:flex
-          items-center
-          gap-6
-          "
-        >
-          {links.map((item: NavItem) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm font-medium transition",
-                isActive(item.href)
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-primary",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
+        {isDashboardUser ? (
+          <Badge
+            variant="default"
+            className="
+            px-4
+            py-3
+            text-sm
+            font-semibold
+            "
+          >
+            {user.role}
+          </Badge>
+        ) : (
+          /* Customer Navigation */
 
-          {user?.role === "CUSTOMER" && (
-            <Link href="/orders" className="relative">
-              <ShoppingCart size={20} />
+          <nav
+            className="
+            hidden
+            md:flex
+            items-center
+            gap-6
+            "
+          >
+            {links.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "text-sm font-medium transition",
+                  isActive(item.href)
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-primary",
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
 
-              <Badge
-                className="
+            {user?.role === "CUSTOMER" && (
+              <Link href="/orders" className="relative">
+                <ShoppingCart size={20} />
+
+                <Badge
+                  className="
                   absolute
                   -right-3
                   -top-3
@@ -162,117 +170,74 @@ export default function TopNavbar() {
                   px-1
                   text-xs
                   "
-              >
-                0
-              </Badge>
-            </Link>
-          )}
-        </nav>
+                >
+                  0
+                </Badge>
+              </Link>
+            )}
+          </nav>
+        )}
 
+        {/* Right Side */}
 
-        <div
-          className="
-          hidden
-          md:flex
-          items-center
-          gap-3
-          "
-        >
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar className="cursor-pointer">
-                  <AvatarFallback>
-                    {user.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <UserCircle className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={logout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link href="/login">
-              <Button>Login</Button>
-            </Link>
-          )}
-        </div>
-
-        {/* Mobile Menu */}
-
-        <Sheet>
-          <SheetTrigger
+        {isDashboardUser ? (
+          <Button
+            variant="destructive"
+            onClick={logout}
             className="
-    md:hidden
-    flex
-    h-10
-    w-10
-    items-center
-    justify-center
-    rounded-md
-    hover:bg-muted
-  "
+            flex
+            items-center
+            gap-2
+            "
           >
-            <Menu size={24} />
-          </SheetTrigger>
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        ) : (
+          <div
+            className="
+            hidden
+            md:flex
+            items-center
+            "
+          >
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar className="cursor-pointer">
+                    <AvatarFallback>
+                      {user.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
 
-          <SheetContent side="right">
-            <nav
-              className="
-              flex
-              flex-col
-              gap-5
-              mt-10
-              "
-            >
-              {links.map((item: NavItem) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "text-lg font-medium",
-                    isActive(item.href)
-                      ? "text-primary"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Link href="/profile" className="flex items-center w-full">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
 
-              {user?.role === "CUSTOMER" && (
-                <Link
-                  href="/orders"
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    text-lg
-                    font-medium
-                    "
-                >
-                  <ShoppingCart size={20} />
-                  Orders
-                </Link>
-              )}
-
-              {user && (
-                <Button variant="destructive" onClick={logout}>
-                  Logout
-                </Button>
-              )}
-            </nav>
-          </SheetContent>
-        </Sheet>
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut
+                      className="
+                      mr-2
+                      h-4
+                      w-4
+                      "
+                    />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/login">
+                <Button>Login</Button>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
