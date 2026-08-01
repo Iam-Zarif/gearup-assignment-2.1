@@ -10,7 +10,6 @@ import {
   PlusCircle,
   DollarSign,
   UserCircle,
-  Settings,
 } from "lucide-react";
 
 const items = [

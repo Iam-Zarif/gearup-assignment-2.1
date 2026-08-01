@@ -35,14 +35,14 @@ const CUSTOMER_LINKS: NavItem[] = [
 const PROVIDER_LINKS: NavItem[] = [
   {
     label: "Dashboard",
-    href: "/dashboard/provider",
+    href: "/provider",
   },
 ];
 
 const ADMIN_LINKS: NavItem[] = [
   {
     label: "Dashboard",
-    href: "/dashboard/admin",
+    href: "/admin",
   },
 ];
 

@@ -3,6 +3,7 @@
 import { AuthContext, User } from "@/src/context/AuthContext";
 import { getCookie, removeCookie, setCookie } from "@/src/lib/cookies";
 import { loginUser } from "@/src/services/auth/auth.service";
+import { getApiErrorMessage } from "@/src/lib/api-error";
 import { ReactNode, useEffect, useState } from "react";
 
 interface Props {
@@ -40,8 +41,10 @@ export default function AuthProvider({ children }: Props) {
 
         if (response.ok) {
           setUser(data.data);
+          await setCookie("role", data.data.role);
         } else {
           await removeCookie("accessToken");
+          await removeCookie("role");
         }
       } catch (error) {
         console.log(error);
@@ -53,10 +56,7 @@ export default function AuthProvider({ children }: Props) {
     loadUser();
   }, []);
 
-  async function login(
-    email: string,
-    password: string
-  ) {
+  async function login(email: string, password: string): Promise<User> {
 
     const response = await loginUser({
       email,
@@ -64,13 +64,15 @@ export default function AuthProvider({ children }: Props) {
     });
 
 
-    const { accessToken, user } = response.data;
+    const { accessToken, user } = response.data as { accessToken: string; user: User };
 
 
     await setCookie(
       "accessToken",
       accessToken
     );
+
+    await setCookie("role", user.role);
 
 
     setAccessToken(accessToken);
@@ -82,27 +84,20 @@ export default function AuthProvider({ children }: Props) {
   }
 
 
-  async function register(payload: any) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
-      {
+  async function register(payload: unknown): Promise<void> {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Registration failed");
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error((await response.json()).message || "Registration failed");
+        }
+      });
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "Registration failed"));
     }
-
-    return data;
   }
 
   async function logout() {
@@ -112,6 +107,7 @@ export default function AuthProvider({ children }: Props) {
     });
 
     await removeCookie("accessToken");
+    await removeCookie("role");
 
     setUser(null);
 

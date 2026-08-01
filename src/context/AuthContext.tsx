@@ -16,11 +16,11 @@ interface AuthContextType {
 
   accessToken: string | null;
 
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
 
-  register: (data: any) => Promise<void>;
+  register: (data: unknown) => Promise<void>;
 
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

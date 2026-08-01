@@ -5,26 +5,53 @@ import Image from "next/image";
 import { X, UploadCloud } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { getApiErrorMessage } from "@/src/lib/api-error";
+import { uploadToCloudinary } from "@/src/services/cloudinary.service";
 
 interface Props {
-  onChange?: (file: File | null) => void;
+  value?: string;
+  onChange?: (imageUrl: string | null) => void;
+  disabled?: boolean;
 }
 
-export default function ImageUpload({ onChange }: Props) {
+export default function ImageUpload({ value, onChange, disabled = false }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(value ?? null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
 
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file");
+      return;
+    }
 
-    setPreview(url);
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be 5MB or smaller");
+      return;
+    }
 
-    onChange?.(file);
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview);
+    setError(null);
+    setIsUploading(true);
+
+    try {
+      const imageUrl = await uploadToCloudinary(file);
+      setPreview(imageUrl);
+      onChange?.(imageUrl);
+    } catch (uploadError) {
+      setPreview(value ?? null);
+      setError(getApiErrorMessage(uploadError, "Unable to upload image"));
+    } finally {
+      URL.revokeObjectURL(localPreview);
+      setIsUploading(false);
+    }
   }
 
   function removeImage() {
@@ -34,6 +61,7 @@ export default function ImageUpload({ onChange }: Props) {
       inputRef.current.value = "";
     }
 
+    setError(null);
     onChange?.(null);
   }
 
@@ -45,12 +73,14 @@ export default function ImageUpload({ onChange }: Props) {
         accept="image/*"
         hidden
         onChange={handleFile}
+        disabled={disabled || isUploading}
       />
 
       {!preview ? (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
+          disabled={disabled || isUploading}
           className="
           flex
           h-48
@@ -71,7 +101,9 @@ export default function ImageUpload({ onChange }: Props) {
           <UploadCloud className="h-10 w-10 text-muted-foreground" />
 
           <div className="text-center">
-            <p className="font-medium">Upload equipment image</p>
+            <p className="font-medium">
+              {isUploading ? "Uploading image..." : "Upload equipment image"}
+            </p>
 
             <p className="text-sm text-muted-foreground">PNG, JPG up to 5MB</p>
           </div>
@@ -95,6 +127,7 @@ export default function ImageUpload({ onChange }: Props) {
             size="icon"
             variant="destructive"
             onClick={removeImage}
+            disabled={disabled || isUploading}
             className="
             absolute
             right-3
@@ -106,6 +139,8 @@ export default function ImageUpload({ onChange }: Props) {
           </Button>
         </div>
       )}
+
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }
