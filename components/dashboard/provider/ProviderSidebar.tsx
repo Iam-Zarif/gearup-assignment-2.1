@@ -16,38 +16,33 @@ import {
 const items = [
   {
     title: "Dashboard",
-    href: "/dashboard/provider",
+    href: "/",
     icon: LayoutDashboard,
   },
   {
     title: "My Equipment",
-    href: "/dashboard/provider/equipment",
+    href: "/provider/equipment",
     icon: Boxes,
   },
   {
     title: "Add Equipment",
-    href: "/dashboard/provider/equipment/create",
+    href: "/provider/create-equipment",
     icon: PlusCircle,
   },
   {
     title: "Orders",
-    href: "/dashboard/provider/orders",
+    href: "/provider/orders",
     icon: ClipboardList,
   },
   {
     title: "Earnings",
-    href: "/dashboard/provider/earnings",
+    href: "/provider/earnings",
     icon: DollarSign,
   },
   {
     title: "Profile",
-    href: "/dashboard/provider/profile",
+    href: "/provider/profile",
     icon: UserCircle,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/provider/settings",
-    icon: Settings,
   },
 ];
 
@@ -57,7 +52,7 @@ export default function ProviderSidebar() {
   return (
     <aside className="sticky top-16 h-[88vh] max-w-[16rem] w-full rounded-xl border bg-background p-3">
       <nav className="space-y-1">
-        {items.map((item) => {
+        {items?.map((item) => {
           const Icon = item.icon;
 
           const active =
