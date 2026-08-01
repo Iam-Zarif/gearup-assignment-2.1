@@ -24,6 +24,11 @@ const schema = z.object({
   stockQuantity: z.number().int().positive("Stock quantity must be greater than zero"),
   availableQuantity: z.number().int().min(0, "Available quantity cannot be negative"),
   imageUrl: z.string().url("Upload a valid image").optional(),
+  specifications: z.object({
+    material: z.string().optional(),
+    adjustableLength: z.string().optional(),
+    condition: z.string().optional(),
+  }),
 }).refine((data) => data.availableQuantity <= data.stockQuantity, {
   message: "Available quantity cannot exceed stock quantity",
   path: ["availableQuantity"],
@@ -36,9 +41,14 @@ export default function CreateEquipmentForm() {
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [imageUploadKey, setImageUploadKey] = useState(0);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { availableQuantity: 1, stockQuantity: 1 },
+    defaultValues: {
+      availableQuantity: 1,
+      stockQuantity: 1,
+      specifications: { material: "", adjustableLength: "", condition: "" },
+    },
   });
 
   useEffect(() => {
@@ -63,8 +73,18 @@ export default function CreateEquipmentForm() {
     setIsSubmitted(false);
 
     try {
-      await createProviderGear(values);
-      form.reset({ availableQuantity: 1, stockQuantity: 1 });
+      await createProviderGear({
+        ...values,
+        specifications: Object.fromEntries(
+          Object.entries(values.specifications).filter(([, value]) => value.trim()),
+        ),
+      });
+      form.reset({
+        availableQuantity: 1,
+        stockQuantity: 1,
+        specifications: { material: "", adjustableLength: "", condition: "" },
+      });
+      setImageUploadKey((key) => key + 1);
       setIsSubmitted(true);
     } catch (error) {
       setSubmitError(getApiErrorMessage(error, "Unable to create equipment"));
@@ -102,9 +122,17 @@ export default function CreateEquipmentForm() {
           </div>
           <div className="space-y-2">
             <Label>Equipment image</Label>
-            <ImageUpload value={imageUrl} onChange={(nextImageUrl) => form.setValue("imageUrl", nextImageUrl ?? undefined, { shouldValidate: true })} disabled={form.formState.isSubmitting} />
+            <ImageUpload key={imageUploadKey} value={imageUrl} onChange={(nextImageUrl) => form.setValue("imageUrl", nextImageUrl ?? undefined, { shouldValidate: true })} disabled={form.formState.isSubmitting} />
             {form.formState.errors.imageUrl ? <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p> : null}
           </div>
+          <fieldset className="space-y-4 rounded-xl border p-5">
+            <legend className="px-1 font-semibold">Specifications</legend>
+            <div className="grid gap-5 md:grid-cols-3">
+              <Field label="Material" error={form.formState.errors.specifications?.material?.message}><Input id="material" placeholder="Aluminum" {...form.register("specifications.material")} /></Field>
+              <Field label="Adjustable length" error={form.formState.errors.specifications?.adjustableLength?.message}><Input id="adjustableLength" placeholder="65cm-135cm" {...form.register("specifications.adjustableLength")} /></Field>
+              <Field label="Condition" error={form.formState.errors.specifications?.condition?.message}><Input id="condition" placeholder="Good" {...form.register("specifications.condition")} /></Field>
+            </div>
+          </fieldset>
           {submitError ? <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{submitError}</p> : null}
           {isSubmitted ? <p className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-700">Equipment created successfully.</p> : null}
           <Button className="w-full" disabled={form.formState.isSubmitting} type="submit">{form.formState.isSubmitting ? "Creating equipment..." : "Create equipment"}</Button>

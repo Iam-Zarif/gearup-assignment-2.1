@@ -54,9 +54,9 @@ export default function ProviderSidebar() {
         {items?.map((item) => {
           const Icon = item.icon;
 
-          const active =
-            pathname === item.href ||
-            pathname.startsWith(`${item.href}/`);
+          const active = item.href === "/provider"
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link

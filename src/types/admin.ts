@@ -4,6 +4,7 @@ export type AdminStats = {
   customers: number;
   categories: number;
   gear: number;
+  activeGear: number;
   rentals: number;
   revenue: string;
 };
@@ -22,7 +23,12 @@ export type AdminGear = {
   id: string;
   name: string;
   brand: string | null;
+  description: string | null;
   pricePerDay: string;
+  stockQuantity: number;
+  availableQuantity: number;
+  imageUrl: string | null;
+  specifications: Record<string, string> | null;
   status: string;
   category: { name: string };
   provider: Pick<AdminUser, "name" | "email">;
@@ -57,4 +63,26 @@ export type Category = {
   id: string;
   name: string;
   description: string | null;
+  imageUrl: string | null;
+};
+
+export type ProviderGear = {
+  id: string;
+  name: string;
+  pricePerDay: string;
+  stockQuantity: number;
+  availableQuantity: number;
+  status: string;
+  imageUrl: string | null;
+  specifications: Record<string, string> | null;
+  category: { name: string };
+};
+
+export type ProviderOrder = {
+  id: string;
+  status: "PLACED" | "CONFIRMED" | "PAID" | "PICKED_UP" | "RETURNED" | "CANCELLED";
+  totalAmount: string;
+  createdAt: string;
+  customer: { name: string; email: string };
+  items: Array<{ id: string; quantity: number; subtotal: string; gearItem: { name: string } }>;
 };

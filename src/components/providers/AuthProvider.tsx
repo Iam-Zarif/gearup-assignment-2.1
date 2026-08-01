@@ -46,8 +46,9 @@ export default function AuthProvider({ children }: Props) {
           await removeCookie("accessToken");
           await removeCookie("role");
         }
-      } catch (error) {
-        console.log(error);
+      } catch {
+        await removeCookie("accessToken");
+        await removeCookie("role");
       } finally {
         setIsLoading(false);
       }
@@ -114,6 +115,10 @@ export default function AuthProvider({ children }: Props) {
     setAccessToken(null);
   }
 
+  function updateUser(nextUser: User) {
+    setUser(nextUser);
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -123,6 +128,7 @@ export default function AuthProvider({ children }: Props) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

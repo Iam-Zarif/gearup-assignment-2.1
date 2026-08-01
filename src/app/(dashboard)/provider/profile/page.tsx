@@ -1,127 +1,43 @@
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import ProviderSidebar from "@/components/dashboard/provider/ProviderSidebar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+"use client";
+
+import { FormEvent, useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Building2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import ProviderShell from "@/src/components/dashboard/provider/ProviderShell";
+import { useProviderData } from "@/src/components/providers/ProviderProvider";
+import { useAuth } from "@/src/context/AuthContext";
+import { getApiErrorMessage } from "@/src/lib/api-error";
+import { updateProviderProfile } from "@/src/services/provider/provider.service";
 
-const provider = {
-  name: "Rahim Traders",
-  email: "rahim@gmail.com",
-  phone: "+8801700000000",
-  address: "Dhaka, Bangladesh",
-  businessName: "Rahim Equipment Rental",
-  status: "ACTIVE",
-  totalEquipment: 12,
-  totalOrders: 45,
-  joinedDate: "January 2026",
-};
+export default function ProfilePage() { return <ProviderShell><ProfileContent /></ProviderShell>; }
 
-export default function ProfilePage() {
-  return (
-    <DashboardLayout sidebar={<ProviderSidebar />}>
-      <section className="mx-auto max-w-4xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Provider Profile</h1>
+function ProfileContent() {
+  const { user, updateUser } = useAuth();
+  const { gear, orders, isLoading } = useProviderData();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!user) return null;
 
-          <p className="text-muted-foreground">
-            Manage your provider account information.
-          </p>
-        </div>
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const values = new FormData(event.currentTarget);
+    setIsSaving(true);
+    setError(null);
+    try {
+      const profile = await updateProviderProfile({ name: String(values.get("name") ?? "").trim(), phone: String(values.get("phone") ?? "").trim(), address: String(values.get("address") ?? "").trim() });
+      updateUser({ ...user, ...profile });
+      setIsEditing(false);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, "Unable to update profile"));
+    } finally { setIsSaving(false); }
+  }
 
-        <Card className="rounded-xl">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-xl">
-                  {provider.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-
-              <div>
-                <CardTitle className="text-xl">{provider.name}</CardTitle>
-
-                <CardDescription>{provider.businessName}</CardDescription>
-              </div>
-            </div>
-
-            <Badge>{provider.status}</Badge>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <Mail className="h-5 w-5 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-
-                  <p className="font-medium">{provider.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <Phone className="h-5 w-5 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-
-                  <p className="font-medium">{provider.phone}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <Building2 className="h-5 w-5 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">Business</p>
-
-                  <p className="font-medium">{provider.businessName}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <MapPin className="h-5 w-5 text-primary" />
-
-                <div>
-                  <p className="text-sm text-muted-foreground">Address</p>
-
-                  <p className="font-medium">{provider.address}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-xl border p-4">
-                <p className="text-sm text-muted-foreground">Total Equipment</p>
-
-                <p className="text-2xl font-bold">{provider.totalEquipment}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <p className="text-sm text-muted-foreground">Total Orders</p>
-
-                <p className="text-2xl font-bold">{provider.totalOrders}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <p className="text-sm text-muted-foreground">Joined</p>
-
-                <p className="font-semibold">{provider.joinedDate}</p>
-              </div>
-            </div>
-
-            <Button>Edit Profile</Button>
-          </CardContent>
-        </Card>
-      </section>
-    </DashboardLayout>
-  );
+  return <section className="mx-auto max-w-4xl space-y-6"><div className="flex items-start justify-between gap-4"><div><h1 className="text-3xl font-bold">Provider profile</h1><p className="mt-1 text-muted-foreground">Your provider account information.</p></div><Button onClick={() => setIsEditing(true)}>Edit profile</Button></div><article className="rounded-xl border p-6"><div className="flex items-center justify-between border-b pb-5"><div><h2 className="text-xl font-semibold">{user.name}</h2><p className="text-muted-foreground">{user.email}</p><p className="text-sm text-muted-foreground">{user.phone ?? "No phone added"}</p><p className="text-sm text-muted-foreground">{user.address ?? "No address added"}</p></div><span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">{user.role}</span></div><dl className="mt-6 grid gap-4 sm:grid-cols-3"><ProfileStat label="Equipment" value={isLoading ? "—" : gear.length} /><ProfileStat label="Orders" value={isLoading ? "—" : orders.length} /><ProfileStat label="Account status" value="Active" /></dl></article><Dialog open={isEditing} onOpenChange={setIsEditing}><DialogContent><DialogHeader><DialogTitle>Edit profile</DialogTitle><DialogDescription>Update the public provider contact information.</DialogDescription></DialogHeader><form className="space-y-4" onSubmit={saveProfile}><ProfileInput defaultValue={user.name} label="Name" name="name" /><ProfileInput defaultValue={user.phone ?? ""} label="Phone" name="phone" /><ProfileInput defaultValue={user.address ?? ""} label="Address" name="address" />{error ? <p className="text-sm text-destructive">{error}</p> : null}<Button className="w-full" disabled={isSaving} type="submit">{isSaving ? "Saving..." : "Save profile"}</Button></form></DialogContent></Dialog></section>;
 }
+
+function ProfileInput({ defaultValue, label, name }: { defaultValue: string; label: string; name: string }) { return <div className="space-y-2"><Label htmlFor={name}>{label}</Label><Input defaultValue={defaultValue} id={name} name={name} required={name === "name"} /></div>; }
+function ProfileStat({ label, value }: { label: string; value: string | number }) { return <div className="rounded-lg border p-4"><dt className="text-sm text-muted-foreground">{label}</dt><dd className="mt-1 text-2xl font-semibold">{value}</dd></div>; }

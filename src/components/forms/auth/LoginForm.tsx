@@ -1,13 +1,12 @@
 "use client";
 
-import { FormEvent, SubmitEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail } from "lucide-react";
 
 import Image from "next/image";
 
-import { loginUser } from "@/src/services/auth/auth.service";
 
 import {
   CardContent,
@@ -21,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/src/context/AuthContext";
+import { getApiErrorMessage } from "@/src/lib/api-error";
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -49,16 +49,11 @@ const handleSubmit = async (
     );
 
 
-    router.push("/");
+    router.replace("/");
 
 
-  } catch (err:any) {
-
-    setError(
-      err?.response?.data?.message ||
-      err.message ||
-      "Invalid email or password"
-    );
+  } catch (error) {
+    setError(getApiErrorMessage(error, "Invalid email or password"));
 
   } finally {
     setLoading(false);

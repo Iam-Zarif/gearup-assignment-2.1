@@ -24,9 +24,19 @@ export const adminService = {
   getPayments: () => getData<AdminPayment[]>("/admin/payments"),
   getReviews: () => getData<AdminReview[]>("/admin/reviews"),
   getCategories: () => getData<Category[]>("/categories"),
-  createCategory: async (payload: Pick<Category, "name" | "description">) => {
+  createCategory: async (payload: Pick<Category, "name" | "description" | "imageUrl">) => {
     const response = await axiosInstance.post<ApiResponse<Category>>("/categories", payload);
     return response.data.data;
+  },
+  updateCategory: async (id: string, payload: Pick<Category, "name" | "description" | "imageUrl">) => {
+    const response = await axiosInstance.patch<ApiResponse<Category>>(`/categories/${id}`, payload);
+    return response.data.data;
+  },
+  deleteCategory: async (id: string) => {
+    await axiosInstance.delete(`/categories/${id}`);
+  },
+  deleteReview: async (id: string) => {
+    await axiosInstance.delete(`/reviews/${id}`);
   },
   updateUserStatus: async (id: string, status: AdminUser["status"]) => {
     const response = await axiosInstance.patch<ApiResponse<AdminUser>>(

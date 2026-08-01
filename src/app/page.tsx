@@ -1,15 +1,13 @@
 "use client";
 
 import { useAuth } from "@/src/context/AuthContext";
-import AdminDashboard from "@/components/dashboard/admin/AdminDashboard";
-import ProviderDashboard from "@/components/dashboard/provider/ProviderDashboard";
+import AdminDashboard from "@/src/components/dashboard/admin/AdminDashboard";
+import ProviderDashboard from "@/src/components/dashboard/provider/ProviderDashboard";
 import CustomerHome from "@/components/customer/home/CustomerHome";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  console.log("user", user);
-
   if (isLoading) {
     return (
     <div className="flex min-h-screen items-center justify-center">

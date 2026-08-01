@@ -18,7 +18,7 @@ import {
 const items = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/",
     icon: LayoutDashboard,
   },
   {
@@ -67,9 +67,9 @@ export default function AdminSidebar() {
         {items.map((item) => {
           const Icon = item.icon;
 
-          const active =
-            pathname === item.href ||
-            pathname.startsWith(item.href + "/");
+          const active = item.href === "/admin"
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link

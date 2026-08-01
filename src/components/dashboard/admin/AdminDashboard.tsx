@@ -18,7 +18,7 @@ function AdminDashboardContent() {
     ["Customers", stats?.customers],
     ["Providers", stats?.providers],
     ["Categories", stats?.categories],
-    ["Gear listings", stats?.gear],
+    ["Active gear", stats?.activeGear],
     ["Rental orders", stats?.rentals],
     ["Completed revenue", stats ? `৳${stats.revenue}` : undefined],
   ];

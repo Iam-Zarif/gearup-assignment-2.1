@@ -7,6 +7,9 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  phone?: string | null;
+  address?: string | null;
+  profilePhoto?: string | null;
 }
 
 interface AuthContextType {
@@ -21,6 +24,8 @@ interface AuthContextType {
   register: (data: unknown) => Promise<void>;
 
   logout: () => Promise<void>;
+
+  updateUser: (user: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

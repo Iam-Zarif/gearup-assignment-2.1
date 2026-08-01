@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, UserCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 
@@ -48,6 +48,7 @@ const ADMIN_LINKS: NavItem[] = [
 
 export default function TopNavbar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const { user, isLoading, logout } = useAuth();
 
@@ -80,6 +81,11 @@ export default function TopNavbar() {
     }
 
     return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  async function handleLogout() {
+    await logout();
+    router.replace("/");
   }
 
   return (
@@ -183,7 +189,7 @@ export default function TopNavbar() {
         {isDashboardUser ? (
           <Button
             variant="destructive"
-            onClick={logout}
+            onClick={() => void handleLogout()}
             className="
             flex
             items-center
@@ -219,7 +225,7 @@ export default function TopNavbar() {
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={logout}>
+                  <DropdownMenuItem onClick={() => void handleLogout()}>
                     <LogOut
                       className="
                       mr-2

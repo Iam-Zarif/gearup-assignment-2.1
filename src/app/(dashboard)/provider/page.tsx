@@ -1,4 +1,4 @@
-import ProviderDashboard from "@/components/dashboard/provider/ProviderDashboard";
+import ProviderDashboard from "@/src/components/dashboard/provider/ProviderDashboard";
 
 export default function ProviderDashboardPage() {
   return <ProviderDashboard/>
