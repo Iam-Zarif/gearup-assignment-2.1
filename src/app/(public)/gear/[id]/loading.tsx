@@ -5,7 +5,8 @@ export default function Loading() {
     <DynamicLoader
       sections={[
         { kind: "hero" },
-        { kind: "cards", cards: 4 },
+        { kind: "cards", cards: 1 },
+        { kind: "list", items: 3 },
       ]}
     />
   );

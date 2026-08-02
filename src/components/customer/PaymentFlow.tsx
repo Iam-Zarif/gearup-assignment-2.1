@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/src/context/AuthContext";
 import { getApiErrorMessage } from "@/src/lib/api-error";
 import { completeStripePayment, createPaymentSession } from "@/src/services/customer/customer.service";
@@ -94,9 +95,41 @@ export function PaymentSuccessPage() {
     };
   }, [sessionId]);
 
-  return <PaymentState description={message} title={state === "loading" ? "Confirming payment" : state === "success" ? "Payment successful" : "Payment confirmation failed"} />;
+  return <PaymentState description={message} status={state} title={state === "loading" ? "Confirming payment" : state === "success" ? "Payment successful" : "Payment confirmation failed"} />;
 }
 
-export function PaymentCancelPage() { return <PaymentState description="No payment was completed. You can return to your order and try again when ready." title="Payment cancelled" />; }
+export function PaymentCancelPage() {
+  return <PaymentState status="error" description="No payment was completed. You can return to your order and try again when ready." title="Payment cancelled" />;
+}
 
-function PaymentState({ description, title }: { description: string; title: string }) { return <main className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4"><section className="w-full rounded-2xl border p-8 text-center"><h1 className="text-3xl font-bold">{title}</h1><p className="mt-3 text-muted-foreground">{description}</p><Link className="mt-6 inline-block" href="/orders"><Button>View my orders</Button></Link></section></main>; }
+function PaymentState({
+  description,
+  title,
+  status,
+}: {
+  description: string;
+  title: string;
+  status?: "loading" | "success" | "error";
+}) {
+  const icon =
+    status === "success" ? (
+      <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-500" />
+    ) : status === "error" ? (
+      <XCircle className="mx-auto h-16 w-16 text-destructive" />
+    ) : (
+      <Loader2 className="mx-auto h-16 w-16 animate-spin text-primary" />
+    );
+
+  return (
+    <main className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4">
+      <section className="w-full rounded-2xl border p-8 text-center">
+        <div className="mb-6">{icon}</div>
+        <h1 className="text-3xl font-bold">{title}</h1>
+        <p className="mt-3 text-muted-foreground">{description}</p>
+        <Link className="mt-6 inline-block" href="/orders">
+          <Button>View my orders</Button>
+        </Link>
+      </section>
+    </main>
+  );
+}

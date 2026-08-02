@@ -1,5 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import SharedPagination from "@/src/components/shared/Pagination";
 
 interface ProviderPaginationProps {
   page: number;
@@ -15,27 +14,11 @@ export function ProviderPagination({
   onPageChange,
 }: ProviderPaginationProps) {
   return (
-    <div className="flex items-center justify-end gap-3">
-      <p className="text-sm text-muted-foreground">{total} total items</p>
-      <Button
-        disabled={page === 1}
-        onClick={() => onPageChange(page - 1)}
-        size="icon"
-        variant="outline"
-      >
-        <ChevronLeft />
-      </Button>
-      <span className="text-sm text-muted-foreground">
-        {page} / {totalPage}
-      </span>
-      <Button
-        disabled={page === totalPage}
-        onClick={() => onPageChange(page + 1)}
-        size="icon"
-        variant="outline"
-      >
-        <ChevronRight />
-      </Button>
-    </div>
+    <SharedPagination
+      page={page}
+      total={total}
+      totalPage={totalPage}
+      onPageChange={onPageChange}
+    />
   );
 }

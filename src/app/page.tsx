@@ -4,20 +4,26 @@ import { useAuth } from "@/src/context/AuthContext";
 import AdminDashboard from "@/src/components/dashboard/admin/AdminDashboard";
 import ProviderDashboard from "@/src/components/dashboard/provider/ProviderDashboard";
 import CustomerHome from "@/components/customer/home/CustomerHome";
-import { Loader2 } from "lucide-react";
+import DynamicLoader from "@/src/components/shared/DynamicLoader";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
+
   if (isLoading) {
     return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-    </div>
-  );
+      <div className="min-h-screen bg-background">
+        <DynamicLoader
+          sections={[
+            { kind: "hero" },
+            { kind: "cards", cards: 2 },
+          ]}
+        />
+      </div>
+    );
   }
 
   if (!user) {
-    return <CustomerHome />
+    return <CustomerHome />;
   }
 
   if (user.role === "ADMIN") {

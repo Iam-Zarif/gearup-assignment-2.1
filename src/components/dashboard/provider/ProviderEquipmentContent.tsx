@@ -25,8 +25,8 @@ import ConfirmDialog from "@/src/components/shared/ConfirmDialog";
 import { ProviderImage } from "./ProviderImage";
 import { removeGear as removeGearAction } from "./removeGear";
 import { saveGear as saveGearAction } from "./saveGear";
-import { ProviderPagination } from "./ProviderPagination";
 import { FormInput, Loader, RequestError } from "./ProviderContentHelpers";
+import Pagination from "@/src/components/shared/Pagination";
 
 export function EquipmentContent() {
   const { refresh: refreshProvider } = useProviderData();
@@ -174,10 +174,10 @@ export function EquipmentContent() {
         <>
           <DataTable columns={columns} data={gear} />
           {meta.totalPage > 1 ? (
-            <ProviderPagination
+            <Pagination
               page={page}
-              totalPage={meta.totalPage}
               total={meta.total}
+              totalPage={meta.totalPage}
               onPageChange={setPage}
             />
           ) : null}

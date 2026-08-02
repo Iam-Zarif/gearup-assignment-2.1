@@ -11,7 +11,6 @@ import {
 export default function Footer() {
   const { user } = useAuth();
 
-  // Hide footer for dashboard roles
   if (user?.role === "ADMIN" || user?.role === "PROVIDER") {
     return null;
   }
@@ -33,8 +32,6 @@ export default function Footer() {
           md:grid-cols-4
           "
         >
-          {/* Brand */}
-
           <div className="space-y-3">
             <h2 className="text-xl font-bold">GearUp</h2>
 
@@ -42,8 +39,6 @@ export default function Footer() {
               Rent agricultural equipment easily from trusted providers.
             </p>
           </div>
-
-          {/* Navigation */}
 
           <div>
             <h3 className="mb-3 font-semibold">Explore</h3>
@@ -63,8 +58,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Support */}
-
           <div>
             <h3 className="mb-3 font-semibold">Support</h3>
 
@@ -78,79 +71,26 @@ export default function Footer() {
               </Link>
 
               <Link href="#" className="block hover:text-primary">
-                Terms & Conditions
+                Terms
               </Link>
             </div>
           </div>
 
-          {/* Social */}
-
           <div>
-            <h3 className="mb-3 font-semibold">Follow Us</h3>
+            <h3 className="mb-3 font-semibold">Follow</h3>
 
-            <div className="flex gap-3">
-              <Link
-                href="#"
-                className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-full
-                border
-                hover:bg-muted
-                "
-              >
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <Link href="#" className="hover:text-primary">
                 <FaFacebookF className="h-4 w-4" />
               </Link>
-
-              <Link
-                href="#"
-                className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-full
-                border
-                hover:bg-muted
-                "
-              >
+              <Link href="#" className="hover:text-primary">
                 <FaInstagram className="h-4 w-4" />
               </Link>
-
-              <Link
-                href="#"
-                className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-full
-                border
-                hover:bg-muted
-                "
-              >
+              <Link href="#" className="hover:text-primary">
                 <FaXTwitter className="h-4 w-4" />
               </Link>
             </div>
           </div>
-        </div>
-
-        <div
-          className="
-          mt-8
-          border-t
-          pt-6
-          text-center
-          text-sm
-          text-muted-foreground
-          "
-        >
-          © {new Date().getFullYear()} GearUp. All rights reserved.
         </div>
       </div>
     </footer>
