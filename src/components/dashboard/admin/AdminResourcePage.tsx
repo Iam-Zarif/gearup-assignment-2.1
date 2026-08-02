@@ -10,8 +10,8 @@ import {
   configuration,
   headers,
   requests,
-  type Resource,
-  type ResourceData,
+  type AdminResource,
+  type AdminResourceData,
 } from "./AdminResourceConfig";
 import DetailsDialog from "@/src/components/shared/DetailsDialog";
 import PageHeader from "@/src/components/shared/PageHeader";
@@ -29,7 +29,7 @@ import type {
 export default function AdminResourcePage({
   resource,
 }: {
-  resource: Resource;
+  resource: AdminResource;
 }) {
   return (
     <AdminShell>
@@ -38,12 +38,12 @@ export default function AdminResourcePage({
   );
 }
 
-function AdminResourceContent({ resource }: { resource: Resource }) {
+function AdminResourceContent({ resource }: { resource: AdminResource }) {
   const { refreshStats } = useAdmin();
-  const [data, setData] = useState<ResourceData>([]);
+  const [data, setData] = useState<AdminResourceData>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<ResourceData[number] | null>(null);
+  const [selected, setSelected] = useState<AdminResourceData[number] | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -112,7 +112,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
         description: descriptionValue || null,
         imageUrl: categoryImageUrl,
       });
-      setData((current) => [category, ...current] as ResourceData);
+      setData((current) => [category, ...current] as AdminResourceData);
       await refreshStats();
       setCategoryImageUrl(null);
       setCategoryImageKey((key) => key + 1);
@@ -135,7 +135,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
         (current) =>
           current.map((item) =>
             (item as AdminUser).id === updatedUser.id ? updatedUser : item,
-          ) as ResourceData,
+          ) as AdminResourceData,
       );
     } catch (requestError) {
       setActionError(
@@ -152,7 +152,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
         (current) =>
           current.filter(
             (item) => (item as AdminReview).id !== review.id,
-          ) as ResourceData,
+          ) as AdminResourceData,
       );
     } catch (requestError) {
       setActionError(
@@ -169,7 +169,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
         (current) =>
           current.filter(
             (item) => (item as Category).id !== category.id,
-          ) as ResourceData,
+          ) as AdminResourceData,
       );
       await refreshStats();
     } catch (requestError) {

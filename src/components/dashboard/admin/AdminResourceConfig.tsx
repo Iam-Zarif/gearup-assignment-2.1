@@ -7,28 +7,14 @@ import type {
   AdminPayment,
   AdminRental,
   AdminReview,
+  AdminResource,
+  AdminResourceConfig as AdminResourceConfigType,
+  AdminResourceData,
   AdminUser,
   Category,
 } from "@/src/types/admin";
 
-type Resource =
-  | "categories"
-  | "customers"
-  | "gears"
-  | "orders"
-  | "payments"
-  | "providers"
-  | "reviews";
-
-type ResourceData =
-  | AdminGear[]
-  | AdminPayment[]
-  | AdminRental[]
-  | AdminReview[]
-  | AdminUser[]
-  | Category[];
-
-const configuration: Record<Resource, { title: string; description: string }> =
+const configuration: Record<AdminResource, AdminResourceConfigType> =
   {
     categories: {
       title: "Categories",
@@ -57,7 +43,7 @@ const configuration: Record<Resource, { title: string; description: string }> =
     },
   };
 
-const headers: Record<Resource, string[]> = {
+const headers: Record<AdminResource, string[]> = {
   categories: ["Image", "Name", "Description"],
   customers: ["Name", "Email", "Phone", "Status"],
   gears: ["Image", "Name", "Category", "Provider", "Price / day", "Status"],
@@ -67,7 +53,7 @@ const headers: Record<Resource, string[]> = {
   reviews: ["Customer", "Gear", "Rating", "Comment"],
 };
 
-const requests: Record<Resource, () => Promise<ResourceData>> = {
+const requests: Record<AdminResource, () => Promise<AdminResourceData>> = {
   categories: adminService.getCategories,
   customers: async () =>
     (await adminService.getUsers()).filter((user) => user.role === "CUSTOMER"),
@@ -79,7 +65,7 @@ const requests: Record<Resource, () => Promise<ResourceData>> = {
   reviews: adminService.getReviews,
 };
 
-function getColumns(resource: Resource, item: ResourceData[number]) {
+function getColumns(resource: AdminResource, item: AdminResourceData[number]) {
   if (resource === "categories") {
     const category = item as Category;
     return [
@@ -167,5 +153,5 @@ function getColumns(resource: Resource, item: ResourceData[number]) {
   ];
 }
 
-export type { Resource, ResourceData };
+export type { AdminResource, AdminResourceData };
 export { configuration, headers, requests, getColumns };

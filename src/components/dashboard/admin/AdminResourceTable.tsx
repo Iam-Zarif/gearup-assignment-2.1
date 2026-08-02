@@ -1,31 +1,11 @@
 import { Button } from "@/components/ui/button";
-import type { Resource, ResourceData } from "./AdminResourceConfig";
 import type {
-  AdminGear,
-  AdminPayment,
-  AdminRental,
   AdminReview,
+  AdminResourceTableProps,
   AdminUser,
   Category,
 } from "@/src/types/admin";
 import { getColumns } from "./AdminResourceConfig";
-
-type AdminResourceTableProps = {
-  resource: Resource;
-  title: string;
-  headers: string[];
-  filteredData: (AdminGear | AdminPayment | AdminRental | AdminReview | AdminUser | Category)[];
-  pageData: (AdminGear | AdminPayment | AdminRental | AdminReview | AdminUser | Category)[];
-  page: number;
-  totalPages: number;
-  search: string;
-  onSearchChange: (value: string) => void;
-  onPageChange: (page: number) => void;
-  onSelect: (item: ResourceData[number]) => void;
-  onUpdateUserStatus: (user: AdminUser) => void;
-  onReviewDelete: (review: AdminReview) => void;
-  onCategoryDelete: (category: Category) => void;
-};
 
 export default function AdminResourceTable({
   resource,

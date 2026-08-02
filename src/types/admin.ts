@@ -89,3 +89,53 @@ export type ProviderOrder = {
   customer: { name: string; email: string };
   items: Array<{ id: string; quantity: number; subtotal: string; gearItem: { name: string; pricePerDay: string; availableQuantity: number; stockQuantity: number; imageUrl: string | null } }>;
 };
+
+// Admin Resource Management Types
+export type AdminResource =
+  | "categories"
+  | "customers"
+  | "gears"
+  | "orders"
+  | "payments"
+  | "providers"
+  | "reviews";
+
+export type AdminResourceData =
+  | AdminGear[]
+  | AdminPayment[]
+  | AdminRental[]
+  | AdminReview[]
+  | AdminUser[]
+  | Category[];
+
+export type AdminResourceConfig = {
+  title: string;
+  description: string;
+};
+
+export type AdminCategoryDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  isCreating: boolean;
+  error: string | null;
+  imageKey: number;
+  onImageChange: (value: string | null) => void;
+};
+
+export type AdminResourceTableProps = {
+  resource: AdminResource;
+  title: string;
+  headers: string[];
+  filteredData: (AdminGear | AdminPayment | AdminRental | AdminReview | AdminUser | Category)[];
+  pageData: (AdminGear | AdminPayment | AdminRental | AdminReview | AdminUser | Category)[];
+  page: number;
+  totalPages: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  onPageChange: (page: number) => void;
+  onSelect: (item: AdminResourceData[number]) => void;
+  onUpdateUserStatus: (user: AdminUser) => void;
+  onReviewDelete: (review: AdminReview) => void;
+  onCategoryDelete: (category: Category) => void;
+};

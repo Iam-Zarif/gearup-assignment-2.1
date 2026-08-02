@@ -5,17 +5,18 @@ import type {
   AdminPayment,
   AdminRental,
   AdminReview,
+  AdminResource,
+  AdminResourceData,
   AdminUser,
   Category,
 } from "@/src/types/admin";
-import type { Resource, ResourceData } from "./AdminResourceConfig";
 
 export function ResourceDetails({
   item,
   resource,
 }: {
-  item: ResourceData[number];
-  resource: Resource;
+  item: AdminResourceData[number];
+  resource: AdminResource;
 }) {
   if (resource === "customers" || resource === "providers") {
     const user = item as AdminUser;

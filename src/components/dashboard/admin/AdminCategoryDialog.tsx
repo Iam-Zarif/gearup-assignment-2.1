@@ -1,5 +1,3 @@
-import { FormEvent } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,16 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ImageUpload from "@/src/components/shared/ImageUpload";
-
-type AdminCategoryDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  isCreating: boolean;
-  error: string | null;
-  imageKey: number;
-  onImageChange: (value: string | null) => void;
-};
+import type { AdminCategoryDialogProps } from "@/src/types/admin";
 
 export default function AdminCategoryDialog({
   open,
