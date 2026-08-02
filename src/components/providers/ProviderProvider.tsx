@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { getApiErrorMessage } from "@/src/lib/api-error";
 import { getProviderGear, getProviderOrders } from "@/src/services/provider/provider.service";
@@ -39,16 +39,14 @@ export default function ProviderProvider({ children }: { children: React.ReactNo
 
   useEffect(() => {
     void Promise.resolve().then(refresh);
-    const intervalId = window.setInterval(() => void refresh(), 10000);
-    const handleFocus = () => void refresh();
-    window.addEventListener("focus", handleFocus);
-    return () => {
-      window.clearInterval(intervalId);
-      window.removeEventListener("focus", handleFocus);
-    };
   }, [refresh]);
 
-  return <ProviderContext.Provider value={{ gear, orders, isLoading, error, refresh }}>{children}</ProviderContext.Provider>;
+  const value = useMemo(
+    () => ({ gear, orders, isLoading, error, refresh }),
+    [gear, orders, isLoading, error, refresh]
+  );
+
+  return <ProviderContext.Provider value={value}>{children}</ProviderContext.Provider>;
 }
 
 export function useProviderData() {

@@ -87,5 +87,5 @@ export type ProviderOrder = {
   endDate: string;
   payment: { status: "PENDING" | "COMPLETED" | "FAILED" } | null;
   customer: { name: string; email: string };
-  items: Array<{ id: string; quantity: number; subtotal: string; gearItem: { name: string } }>;
+  items: Array<{ id: string; quantity: number; subtotal: string; gearItem: { name: string; pricePerDay: string; availableQuantity: number; stockQuantity: number; imageUrl: string | null } }>;
 };

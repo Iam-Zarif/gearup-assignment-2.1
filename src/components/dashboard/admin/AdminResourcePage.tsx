@@ -4,7 +4,9 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 
 import AdminShell from "@/src/components/dashboard/admin/AdminShell";
+import DetailsDialog from "@/src/components/shared/DetailsDialog";
 import PageHeader from "@/src/components/shared/PageHeader";
+import StatusBadge from "@/src/components/shared/StatusBadge";
 import { useAdmin } from "@/src/components/providers/AdminProvider";
 import { getApiErrorMessage } from "@/src/lib/api-error";
 import { adminService } from "@/src/services/admin/admin.service";
@@ -61,22 +63,22 @@ function getColumns(resource: Resource, item: ResourceData[number]) {
 
   if (resource === "customers" || resource === "providers") {
     const user = item as AdminUser;
-    return [user.name, user.email, user.phone ?? "—", user.status];
+    return [user.name, user.email, user.phone ?? "—", <StatusBadge key={`${user.id}-status`} status={user.status} />];
   }
 
   if (resource === "gears") {
     const gear = item as AdminGear;
-    return [gear.imageUrl ? <Image alt={gear.name} className="rounded object-cover" height={48} key={gear.id} src={gear.imageUrl} unoptimized width={64} /> : "No image", gear.name, gear.category.name, gear.provider.name, `৳${gear.pricePerDay}`, gear.status];
+    return [gear.imageUrl ? <Image alt={gear.name} className="rounded object-cover" height={48} key={gear.id} src={gear.imageUrl} unoptimized width={64} /> : "No image", gear.name, gear.category.name, gear.provider.name, `৳${gear.pricePerDay}`, <StatusBadge key={`${gear.id}-status`} status={gear.status} />];
   }
 
   if (resource === "orders") {
     const rental = item as AdminRental;
-    return [rental.id.slice(0, 8), rental.customer.name, rental.items.map((entry) => entry.gearItem.name).join(", "), `৳${rental.totalAmount}`, rental.status];
+    return [rental.id.slice(0, 8), rental.customer.name, rental.items.map((entry) => entry.gearItem.name).join(", "), `৳${rental.totalAmount}`, <StatusBadge key={`${rental.id}-status`} status={rental.status} />];
   }
 
   if (resource === "payments") {
     const payment = item as AdminPayment;
-    return [payment.id.slice(0, 8), payment.customer.name, payment.rentalOrder.id.slice(0, 8), `৳${payment.amount}`, payment.method ?? "—", payment.status];
+    return [payment.id.slice(0, 8), payment.customer.name, payment.rentalOrder.id.slice(0, 8), `৳${payment.amount}`, payment.method ?? "—", <StatusBadge key={`${payment.id}-status`} status={payment.status} />];
   }
 
   const review = item as AdminReview;
@@ -242,12 +244,9 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
           </table>
         </div><div className="flex items-center justify-between text-sm text-muted-foreground"><span>{filteredData.length} results</span><div className="flex gap-2"><Button disabled={page === 1} onClick={() => setPage((current) => current - 1)} size="sm" variant="outline">Previous</Button><span className="px-2 py-1">{page} / {totalPages}</span><Button disabled={page === totalPages} onClick={() => setPage((current) => current + 1)} size="sm" variant="outline">Next</Button></div></div></div>
       ) : null}
-      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{title} details</DialogTitle><DialogDescription>Live data returned by the API.</DialogDescription></DialogHeader>
-          {selected ? <ResourceDetails item={selected} resource={resource} /> : null}
-        </DialogContent>
-      </Dialog>
+      <DetailsDialog description="Live data returned by the API." onOpenChange={(open) => !open && setSelected(null)} open={Boolean(selected)} title={`${title} details`}>
+        {selected ? <ResourceDetails item={selected} resource={resource} /> : null}
+      </DetailsDialog>
       <ConfirmDialog description="This permanently removes the review from the platform." onConfirm={() => reviewToDelete ? removeReview(reviewToDelete) : Promise.resolve()} onOpenChange={(open) => !open && setReviewToDelete(null)} open={Boolean(reviewToDelete)} title="Delete review?" />
       <ConfirmDialog description={`This deletes ${categoryToDelete?.name ?? "this category"}. Categories with gear cannot be deleted.`} onConfirm={() => categoryToDelete ? removeCategory(categoryToDelete) : Promise.resolve()} onOpenChange={(open) => !open && setCategoryToDelete(null)} open={Boolean(categoryToDelete)} title="Delete category?" />
     </section>
