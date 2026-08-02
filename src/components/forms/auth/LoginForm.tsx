@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail } from "lucide-react";
 
@@ -25,6 +25,7 @@ import { getApiErrorMessage } from "@/src/lib/api-error";
 export default function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,8 +49,8 @@ const handleSubmit = async (
       form.password
     );
 
-
-    router.replace("/");
+    const redirect = searchParams.get("redirect");
+    router.replace(redirect?.startsWith("/gear/") ? redirect : "/");
 
 
   } catch (error) {

@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 
 import AdminShell from "@/src/components/dashboard/admin/AdminShell";
+import PageHeader from "@/src/components/shared/PageHeader";
 import { useAdmin } from "@/src/components/providers/AdminProvider";
 import { getApiErrorMessage } from "@/src/lib/api-error";
 import { adminService } from "@/src/services/admin/admin.service";
@@ -65,7 +66,7 @@ function getColumns(resource: Resource, item: ResourceData[number]) {
 
   if (resource === "gears") {
     const gear = item as AdminGear;
-    return [gear.name, gear.category.name, gear.provider.name, `৳${gear.pricePerDay}`, gear.status];
+    return [gear.imageUrl ? <Image alt={gear.name} className="rounded object-cover" height={48} key={gear.id} src={gear.imageUrl} unoptimized width={64} /> : "No image", gear.name, gear.category.name, gear.provider.name, `৳${gear.pricePerDay}`, gear.status];
   }
 
   if (resource === "orders") {
@@ -85,7 +86,7 @@ function getColumns(resource: Resource, item: ResourceData[number]) {
 const headers: Record<Resource, string[]> = {
   categories: ["Image", "Name", "Description"],
   customers: ["Name", "Email", "Phone", "Status"],
-  gears: ["Name", "Category", "Provider", "Price / day", "Status"],
+  gears: ["Image", "Name", "Category", "Provider", "Price / day", "Status"],
   orders: ["Order", "Customer", "Gear", "Amount", "Status"],
   payments: ["Payment", "Customer", "Order", "Amount", "Method", "Status"],
   providers: ["Name", "Email", "Phone", "Status"],
@@ -205,12 +206,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{title} ({data.length})</h1>
-          <p className="mt-1 text-muted-foreground">{description}</p>
-        </div>
-        {resource === "categories" ? (
+      <PageHeader description={description} title={`${title} (${data.length})`} action={resource === "categories" ? (
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger render={<Button />}>Add category</DialogTrigger>
             <DialogContent>
@@ -227,8 +223,7 @@ function AdminResourceContent({ resource }: { resource: Resource }) {
               </form>
             </DialogContent>
           </Dialog>
-        ) : null}
-      </div>
+        ) : undefined} />
       {isLoading ? <div className="h-64 animate-pulse rounded-xl bg-muted" /> : null}
       {error || actionError ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-destructive"><p>{actionError ?? error}</p>{error ? <Button className="mt-3" onClick={() => void loadResource()} size="sm" variant="outline">Try again</Button> : null}</div> : null}
       {!isLoading && !error ? (

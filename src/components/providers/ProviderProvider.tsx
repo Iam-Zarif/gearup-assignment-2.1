@@ -27,8 +27,8 @@ export default function ProviderProvider({ children }: { children: React.ReactNo
     setError(null);
 
     try {
-      const [nextGear, nextOrders] = await Promise.all([getProviderGear(), getProviderOrders()]);
-      setGear(nextGear);
+      const [nextGear, nextOrders] = await Promise.all([getProviderGear({ page: 1, limit: 100 }), getProviderOrders()]);
+      setGear(nextGear.gear);
       setOrders(nextOrders);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Unable to load provider data"));
@@ -39,6 +39,13 @@ export default function ProviderProvider({ children }: { children: React.ReactNo
 
   useEffect(() => {
     void Promise.resolve().then(refresh);
+    const intervalId = window.setInterval(() => void refresh(), 10000);
+    const handleFocus = () => void refresh();
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [refresh]);
 
   return <ProviderContext.Provider value={{ gear, orders, isLoading, error, refresh }}>{children}</ProviderContext.Provider>;

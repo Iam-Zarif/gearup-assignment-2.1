@@ -21,11 +21,11 @@ export async function createProviderGear(payload: CreateGearPayload) {
   return axiosInstance.post("/provider/gear", payload);
 }
 
-type ApiResponse<T> = { data: T };
+type ApiResponse<T> = { data: T; meta?: { page: number; limit: number; total: number; totalPage: number } };
 
-export async function getProviderGear(): Promise<ProviderGear[]> {
-  const response = await axiosInstance.get<ApiResponse<ProviderGear[]>>("/provider/gear");
-  return response.data.data;
+export async function getProviderGear(params: { page?: number; limit?: number } = {}) {
+  const response = await axiosInstance.get<ApiResponse<ProviderGear[]>>("/provider/gear", { params });
+  return { gear: response.data.data, meta: response.data.meta };
 }
 
 export async function deleteProviderGear(id: string): Promise<void> {

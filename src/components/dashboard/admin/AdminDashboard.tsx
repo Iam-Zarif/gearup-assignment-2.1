@@ -2,6 +2,7 @@
 
 import AdminShell from "@/src/components/dashboard/admin/AdminShell";
 import { useAdmin } from "@/src/components/providers/AdminProvider";
+import PageHeader from "@/src/components/shared/PageHeader";
 
 export default function AdminDashboard() {
   return (
@@ -25,10 +26,7 @@ function AdminDashboardContent() {
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin dashboard</h1>
-        <p className="mt-1 text-muted-foreground">A live view of GearUp platform activity.</p>
-      </div>
+      <PageHeader description="A live view of GearUp platform activity." title="Admin dashboard" />
       {error ? <p className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">{error}</p> : null}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(([label, value]) => (

@@ -83,6 +83,9 @@ export type ProviderOrder = {
   status: "PLACED" | "CONFIRMED" | "PAID" | "PICKED_UP" | "RETURNED" | "CANCELLED";
   totalAmount: string;
   createdAt: string;
+  startDate: string;
+  endDate: string;
+  payment: { status: "PENDING" | "COMPLETED" | "FAILED" } | null;
   customer: { name: string; email: string };
   items: Array<{ id: string; quantity: number; subtotal: string; gearItem: { name: string } }>;
 };

@@ -11,7 +11,7 @@ const ROLE_DASHBOARDS: Record<string, string> = {
 function getRequestedRole(pathname: string) {
   const match = pathname.match(/^\/(admin|provider|customer)(?:\/|$)/);
   if (match) return match[1].toUpperCase();
-  if (pathname === "/orders" || pathname === "/profile" || pathname.startsWith("/payment")) return "CUSTOMER";
+  if (pathname === "/orders" || pathname === "/profile" || pathname === "/payment") return "CUSTOMER";
 }
 
 export function proxy(request: NextRequest) {

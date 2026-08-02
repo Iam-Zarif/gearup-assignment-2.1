@@ -16,7 +16,6 @@ export const registerUser = async (
     "/auth/register",
     payload
   );
-  console.log("registerUser response:", response.data);
 
   return response.data;
 };

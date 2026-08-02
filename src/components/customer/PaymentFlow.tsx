@@ -2,21 +2,21 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/src/context/AuthContext";
 import { getApiErrorMessage } from "@/src/lib/api-error";
-import { confirmPayment, createPaymentSession } from "@/src/services/customer/customer.service";
+import { completeStripePayment, createPaymentSession } from "@/src/services/customer/customer.service";
 
 export function PaymentPage() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const orderId = searchParams.get("orderId");
 
-  async function startPayment() {
+  const startPayment = useCallback(async () => {
     if (!orderId) return;
     setIsLoading(true);
     setError(null);
@@ -28,11 +28,16 @@ export function PaymentPage() {
       setError(getApiErrorMessage(requestError, "Unable to start payment"));
       setIsLoading(false);
     }
-  }
+  }, [orderId]);
+
+  useEffect(() => {
+    if (orderId && user?.role === "CUSTOMER") void startPayment();
+  }, [orderId, startPayment, user?.role]);
 
   if (!orderId) return <PaymentState description="Choose a confirmed rental order before starting payment." title="No order selected" />;
   if (!user || user.role !== "CUSTOMER") return <PaymentState description="Sign in with a customer account to pay for a rental order." title="Customer account required" />;
-  return <main className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4"><section className="w-full rounded-2xl border p-8 text-center"><h1 className="text-3xl font-bold">Complete payment</h1><p className="mt-3 text-muted-foreground">You will be securely redirected to Stripe Checkout.</p>{error ? <p className="mt-5 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}<Button className="mt-6 w-full" disabled={isLoading} onClick={() => void startPayment()}>{isLoading ? "Opening Stripe..." : "Continue to Stripe"}</Button><Link className="mt-4 inline-block text-sm text-primary underline" href="/orders">Back to orders</Link></section></main>;
+  if (error) return <main className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4"><section className="w-full rounded-2xl border p-8 text-center"><h1 className="text-3xl font-bold">Unable to open checkout</h1><p className="mt-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p><Button className="mt-6" onClick={() => void startPayment()}>Try again</Button><Link className="ml-4 text-sm text-primary underline" href="/orders">Back to orders</Link></section></main>;
+  return <PaymentState description={isLoading ? "Opening Stripe Checkout..." : "Preparing checkout..."} title="Redirecting to payment" />;
 }
 
 export function PaymentSuccessPage() {
@@ -42,8 +47,28 @@ export function PaymentSuccessPage() {
   const [message, setMessage] = useState("Confirming your payment...");
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
     if (!sessionId) { setState("error"); setMessage("Stripe session ID is missing."); return; }
-    void confirmPayment(sessionId).then(() => { setState("success"); setMessage("Payment confirmed. Your rental is ready for provider pickup processing."); }, (requestError: unknown) => { setState("error"); setMessage(getApiErrorMessage(requestError, "Unable to confirm payment")); });
+    const verifyPayment = async (attempt: number) => {
+      try {
+        const payment = await completeStripePayment(sessionId);
+        if (payment.status === "COMPLETED") {
+          if (!cancelled) { setState("success"); setMessage("Payment confirmed. Your rental is ready for provider pickup processing."); }
+          return;
+        }
+        if (attempt < 20) {
+          if (!cancelled) setMessage("Verifying payment with Stripe...");
+          timeoutId = setTimeout(() => void verifyPayment(attempt + 1), 1500);
+          return;
+        }
+        if (!cancelled) { setState("error"); setMessage("Payment is still pending. Refresh your orders in a moment."); }
+      } catch (requestError) {
+        if (!cancelled) { setState("error"); setMessage(getApiErrorMessage(requestError, "Unable to confirm payment")); }
+      }
+    };
+    void verifyPayment(0);
+    return () => { cancelled = true; if (timeoutId) clearTimeout(timeoutId); };
   }, [sessionId]);
 
   return <PaymentState description={message} title={state === "loading" ? "Confirming payment" : state === "success" ? "Payment successful" : "Payment confirmation failed"} />;

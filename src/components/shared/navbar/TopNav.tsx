@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, UserCircle, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/src/context/AuthContext";
+import { getMyRentals } from "@/src/services/customer/customer.service";
 
 import {
   DropdownMenu,
@@ -51,6 +53,18 @@ export default function TopNavbar() {
   const router = useRouter();
 
   const { user, isLoading, logout } = useAuth();
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "CUSTOMER") {
+      setOrderCount(0);
+      return;
+    }
+
+    void getMyRentals({ page: 1, limit: 1 })
+      .then((result) => setOrderCount(result.meta?.total ?? result.rentals.length))
+      .catch(() => setOrderCount(0));
+  }, [pathname, user?.role]);
 
   const HIDDEN_ROUTES = ["/login", "/register"];
 
@@ -177,7 +191,7 @@ export default function TopNavbar() {
                   text-xs
                   "
                 >
-                  0
+                  {orderCount}
                 </Badge>
               </Link>
             )}

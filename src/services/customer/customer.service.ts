@@ -16,9 +16,9 @@ export async function createRental(payload: { startDate: string; endDate: string
   return response.data.data;
 }
 
-export async function getMyRentals() {
-  const response = await axiosInstance.get<ApiResponse<CustomerRental[]>>("/rentals");
-  return response.data.data;
+export async function getMyRentals(params: { page: number; limit: number }) {
+  const response = await axiosInstance.get<ApiResponse<CustomerRental[]>>("/rentals", { params });
+  return { rentals: response.data.data, meta: response.data.meta };
 }
 
 export async function createPaymentSession(rentalOrderId: string) {
@@ -31,9 +31,14 @@ export async function confirmPayment(sessionId: string) {
   return response.data.data;
 }
 
-export async function getMyPayments() {
-  const response = await axiosInstance.get<ApiResponse<CustomerPayment[]>>("/payments");
+export async function completeStripePayment(sessionId: string) {
+  const response = await axiosInstance.get<ApiResponse<CustomerPayment>>("/payments/success", { params: { session_id: sessionId } });
   return response.data.data;
+}
+
+export async function getMyPayments(params: { page: number; limit: number }) {
+  const response = await axiosInstance.get<ApiResponse<CustomerPayment[]>>("/payments", { params });
+  return { payments: response.data.data, meta: response.data.meta };
 }
 
 export async function getGearReviews(gearItemId: string) {
