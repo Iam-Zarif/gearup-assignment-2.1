@@ -42,6 +42,7 @@ export default function GearCatalog({
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
     page: 1,
+    limit: 10,
     total: 0,
     totalPage: 1,
   });
@@ -67,12 +68,16 @@ export default function GearCatalog({
               : undefined,
         availability: "available",
         page,
-        limit: featured ? 4 : 12,
+        limit: 10,
       });
-
       setGear(result.gear);
       setPagination(
-        result.meta ?? { page: 1, total: result.gear.length, totalPage: 1 },
+        result.meta ?? {
+          page,
+          limit: 10,
+          total: result.gear.length,
+          totalPage: 1,
+        },
       );
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, "Unable to load equipment"));

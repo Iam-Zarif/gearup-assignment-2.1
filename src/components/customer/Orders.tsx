@@ -54,13 +54,17 @@ function OrdersContent() {
         getMyRentals({ page: ordersPage, limit }),
         getMyPayments({ page: paymentsPage, limit }),
       ]);
+      const nextOrdersLimit = rentalResult.meta?.limit ?? limit;
+      const nextPaymentsLimit = paymentResult.meta?.limit ?? limit;
+
       setOrders(rentalResult.rentals);
       setPayments(paymentResult.payments);
+      setLimit(nextOrdersLimit);
       setOrdersMeta(
         rentalResult.meta ?? {
           ...emptyMeta,
           page: ordersPage,
-          limit,
+          limit: nextOrdersLimit,
           total: rentalResult.rentals.length,
         },
       );
@@ -68,7 +72,7 @@ function OrdersContent() {
         paymentResult.meta ?? {
           ...emptyMeta,
           page: paymentsPage,
-          limit,
+          limit: nextPaymentsLimit,
           total: paymentResult.payments.length,
         },
       );

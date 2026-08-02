@@ -54,19 +54,42 @@ export default function TopNavbar() {
 
   const { user, isLoading, logout } = useAuth();
   const [orderCount, setOrderCount] = useState(0);
+  const [hasFetchedOrderCount, setHasFetchedOrderCount] = useState(false);
 
   useEffect(() => {
-    void Promise.resolve().then(() => {
-      if (user?.role !== "CUSTOMER") {
-        setOrderCount(0);
-        return;
-      }
+    if (user?.role !== "CUSTOMER") {
+      setOrderCount(0);
+      setHasFetchedOrderCount(false);
+      return;
+    }
 
-      getMyRentals({ page: 1, limit: 1 })
-        .then((result) => setOrderCount(result.meta?.total ?? result.rentals.length))
-        .catch(() => setOrderCount(0));
-    });
-  }, [pathname, user?.role]);
+    if (pathname !== "/orders" && pathname !== "/profile") {
+      return;
+    }
+
+    if (hasFetchedOrderCount) {
+      return;
+    }
+
+    let mounted = true;
+
+    getMyRentals({ page: 1, limit: 1 })
+      .then((result) => {
+        if (!mounted) return;
+        setOrderCount(result.meta?.total ?? result.rentals.length);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setOrderCount(0);
+      })
+      .finally(() => {
+        if (mounted) setHasFetchedOrderCount(true);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [pathname, user?.role, hasFetchedOrderCount]);
 
   const HIDDEN_ROUTES = ["/login", "/register"];
 
@@ -183,18 +206,20 @@ export default function TopNavbar() {
               <Link href="/orders" className="relative">
                 <ShoppingCart size={20} />
 
-                <Badge
-                  className="
-                  absolute
-                  -right-3
-                  -top-3
-                  h-5
-                  px-1
-                  text-xs
-                  "
-                >
-                  {orderCount}
-                </Badge>
+                {hasFetchedOrderCount ? (
+                  <Badge
+                    className="
+                    absolute
+                    -right-3
+                    -top-3
+                    h-5
+                    px-1
+                    text-xs
+                    "
+                  >
+                    {orderCount}
+                  </Badge>
+                ) : null}
               </Link>
             )}
           </nav>

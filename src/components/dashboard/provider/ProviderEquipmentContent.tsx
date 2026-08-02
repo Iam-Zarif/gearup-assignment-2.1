@@ -50,12 +50,12 @@ export function EquipmentContent() {
     setError(null);
 
     try {
-      const result = await getProviderGear({ page, limit: 10 });
+      const result = await getProviderGear({ page, limit: meta.limit });
       setGear(result.gear);
       setMeta(
         result.meta ?? {
           page,
-          limit: 10,
+          limit: meta.limit,
           total: result.gear.length,
           totalPage: 1,
         },
@@ -65,7 +65,7 @@ export function EquipmentContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [page]);
+  }, [meta.limit, page]);
 
   const toggleAvailability = useCallback(
     async (item: ProviderGear) => {
