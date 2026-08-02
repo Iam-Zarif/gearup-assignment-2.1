@@ -69,13 +69,22 @@ export default function RegisterForm() {
       await registerUser(form);
 
       router.push("/login");
-    } catch (err: any) {
-      const response = err?.response?.data;
+    } catch (err: unknown) {
+      const response = (err as { response?: { data?: unknown } }).response?.data as
+        | { errorDetails?: Array<{ message?: string }>; message?: string }
+        | undefined;
 
-      if (response?.errorDetails?.length) {
-        setErrors(response.errorDetails.map((item: any) => item.message));
+      if (Array.isArray(response?.errorDetails) && response.errorDetails.length) {
+        setErrors(
+          response.errorDetails.map(
+            (item) => item.message ?? "Registration failed",
+          ),
+        );
       } else {
-        setErrors([response?.message || err.message || "Registration failed"]);
+        const message =
+          response?.message ||
+          (err instanceof Error ? err.message : "Registration failed");
+        setErrors([message]);
       }
     } finally {
       setLoading(false);

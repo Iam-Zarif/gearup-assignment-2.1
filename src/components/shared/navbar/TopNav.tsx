@@ -56,14 +56,16 @@ export default function TopNavbar() {
   const [orderCount, setOrderCount] = useState(0);
 
   useEffect(() => {
-    if (user?.role !== "CUSTOMER") {
-      setOrderCount(0);
-      return;
-    }
+    void Promise.resolve().then(() => {
+      if (user?.role !== "CUSTOMER") {
+        setOrderCount(0);
+        return;
+      }
 
-    void getMyRentals({ page: 1, limit: 1 })
-      .then((result) => setOrderCount(result.meta?.total ?? result.rentals.length))
-      .catch(() => setOrderCount(0));
+      getMyRentals({ page: 1, limit: 1 })
+        .then((result) => setOrderCount(result.meta?.total ?? result.rentals.length))
+        .catch(() => setOrderCount(0));
+    });
   }, [pathname, user?.role]);
 
   const HIDDEN_ROUTES = ["/login", "/register"];

@@ -23,7 +23,13 @@ function Carousel({ autoPlay = false, children, className }: { autoPlay?: boolea
 function CarouselContent({ children, className }: React.ComponentProps<"div">) {
   const context = React.useContext(CarouselContext);
   if (!context) throw new Error("CarouselContent must be used within Carousel");
-  return <div className="overflow-hidden" ref={context.carouselRef}><div className={cn("flex -ml-5", className)}>{children}</div></div>;
+  const { carouselRef } = context;
+
+  return (
+    <div className="overflow-hidden" ref={carouselRef}>
+      <div className={cn("flex -ml-5", className)}>{children}</div>
+    </div>
+  );
 }
 
 function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {

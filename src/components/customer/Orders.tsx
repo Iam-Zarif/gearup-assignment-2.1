@@ -79,7 +79,7 @@ function OrdersContent() {
     }
   }, [limit, ordersPage, paymentsPage]);
   useEffect(() => {
-    void loadOrders();
+    void Promise.resolve().then(loadOrders);
   }, [loadOrders]);
   function updateLimit(value: string | null) {
     const nextLimit = Number(value);

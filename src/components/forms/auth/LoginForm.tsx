@@ -179,7 +179,7 @@ const handleSubmit = async (
       </div>
 
       <div className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <span>Don't have an account?</span>
+        <span>Don&apos;t have an account?</span>
 
         <button
           type="button"

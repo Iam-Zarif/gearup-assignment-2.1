@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,18 +16,17 @@ import DataTable from "@/src/components/shared/DataTable";
 import PageHeader from "@/src/components/shared/PageHeader";
 import StatusBadge from "@/src/components/shared/StatusBadge";
 import { getApiErrorMessage } from "@/src/lib/api-error";
-import { getProviderGear, updateProviderGear } from "@/src/services/provider/provider.service";
+import {
+  getProviderGear,
+  updateProviderGear,
+} from "@/src/services/provider/provider.service";
 import type { ProviderGear } from "@/src/types/admin";
 import ConfirmDialog from "@/src/components/shared/ConfirmDialog";
 import { ProviderImage } from "./ProviderImage";
 import { removeGear as removeGearAction } from "./removeGear";
 import { saveGear as saveGearAction } from "./saveGear";
 import { ProviderPagination } from "./ProviderPagination";
-import {
-  FormInput,
-  Loader,
-  RequestError,
-} from "./ProviderContentHelpers";
+import { FormInput, Loader, RequestError } from "./ProviderContentHelpers";
 
 export function EquipmentContent() {
   const { refresh: refreshProvider } = useProviderData();
@@ -45,6 +44,44 @@ export function EquipmentContent() {
   const [editingGear, setEditingGear] = useState<ProviderGear | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [gearToDelete, setGearToDelete] = useState<ProviderGear | null>(null);
+
+  const loadGear = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await getProviderGear({ page, limit: 10 });
+      setGear(result.gear);
+      setMeta(
+        result.meta ?? {
+          page,
+          limit: 10,
+          total: result.gear.length,
+          totalPage: 1,
+        },
+      );
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, "Unable to load equipment"));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page]);
+
+  const toggleAvailability = useCallback(
+    async (item: ProviderGear) => {
+      try {
+        await updateProviderGear(item.id, {
+          status: item.status === "AVAILABLE" ? "UNAVAILABLE" : "AVAILABLE",
+        });
+        await Promise.all([loadGear(), refreshProvider()]);
+      } catch (requestError) {
+        setActionError(
+          getApiErrorMessage(requestError, "Unable to update availability"),
+        );
+      }
+    },
+    [loadGear, refreshProvider],
+  );
 
   const columns = useMemo(
     () => [
@@ -115,44 +152,9 @@ export function EquipmentContent() {
     [toggleAvailability],
   );
 
-  const loadGear = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await getProviderGear({ page, limit: 10 });
-      setGear(result.gear);
-      setMeta(
-        result.meta ?? {
-          page,
-          limit: 10,
-          total: result.gear.length,
-          totalPage: 1,
-        },
-      );
-    } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "Unable to load equipment"));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page]);
-
   useEffect(() => {
-    void loadGear();
+    void Promise.resolve().then(loadGear);
   }, [loadGear]);
-
-  async function toggleAvailability(item: ProviderGear) {
-    try {
-      await updateProviderGear(item.id, {
-        status: item.status === "AVAILABLE" ? "UNAVAILABLE" : "AVAILABLE",
-      });
-      await Promise.all([loadGear(), refreshProvider()]);
-    } catch (requestError) {
-      setActionError(
-        getApiErrorMessage(requestError, "Unable to update availability"),
-      );
-    }
-  }
 
   return (
     <section className="space-y-6">

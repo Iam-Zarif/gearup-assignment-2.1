@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Eye, MoreHorizontal, Package } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,21 @@ export function OrdersContent() {
   const { orders, isLoading, error, refresh } = useProviderData();
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<ProviderOrder | null>(null);
+
+  const changeStatus = useCallback(
+    async (
+      id: string,
+      status: "CONFIRMED" | "PICKED_UP" | "RETURNED" | "CANCELLED",
+    ) => {
+      try {
+        await updateProviderOrderStatus(id, status);
+        await refresh();
+      } catch (requestError) {
+        setActionError(getApiErrorMessage(requestError, "Unable to update order"));
+      }
+    },
+    [refresh],
+  );
 
   const columns = useMemo(
     () => [
@@ -89,18 +104,6 @@ export function OrdersContent() {
     ],
     [changeStatus],
   );
-
-  async function changeStatus(
-    id: string,
-    status: "CONFIRMED" | "PICKED_UP" | "RETURNED" | "CANCELLED",
-  ) {
-    try {
-      await updateProviderOrderStatus(id, status);
-      await refresh();
-    } catch (requestError) {
-      setActionError(getApiErrorMessage(requestError, "Unable to update order"));
-    }
-  }
 
   return (
     <section className="space-y-6">

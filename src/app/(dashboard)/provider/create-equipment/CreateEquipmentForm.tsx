@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,10 @@ export default function CreateEquipmentForm() {
     }
   }
 
-  const imageUrl = form.watch("imageUrl");
+  const imageUrl = useWatch({
+    control: form.control,
+    name: "imageUrl",
+  });
 
   return (
     <Card className="rounded-xl">

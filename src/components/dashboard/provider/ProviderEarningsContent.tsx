@@ -5,7 +5,6 @@ import PageHeader from "@/src/components/shared/PageHeader";
 import StatusBadge from "@/src/components/shared/StatusBadge";
 import {
   EmptyTable,
-  Loader,
   RequestError,
 } from "./ProviderContentHelpers";
 

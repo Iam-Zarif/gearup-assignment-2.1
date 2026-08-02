@@ -31,7 +31,9 @@ export function PaymentPage() {
   }, [orderId]);
 
   useEffect(() => {
-    if (orderId && user?.role === "CUSTOMER") void startPayment();
+    if (orderId && user?.role === "CUSTOMER") {
+      void Promise.resolve().then(startPayment);
+    }
   }, [orderId, startPayment, user?.role]);
 
   if (!orderId) return <PaymentState description="Choose a confirmed rental order before starting payment." title="No order selected" />;
@@ -49,26 +51,47 @@ export function PaymentSuccessPage() {
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let cancelled = false;
-    if (!sessionId) { setState("error"); setMessage("Stripe session ID is missing."); return; }
+
     const verifyPayment = async (attempt: number) => {
+      if (!sessionId) {
+        setState("error");
+        setMessage("Stripe session ID is missing.");
+        return;
+      }
+
       try {
         const payment = await completeStripePayment(sessionId);
         if (payment.status === "COMPLETED") {
-          if (!cancelled) { setState("success"); setMessage("Payment confirmed. Your rental is ready for provider pickup processing."); }
+          if (!cancelled) {
+            setState("success");
+            setMessage("Payment confirmed. Your rental is ready for provider pickup processing.");
+          }
           return;
         }
+
         if (attempt < 20) {
           if (!cancelled) setMessage("Verifying payment with Stripe...");
           timeoutId = setTimeout(() => void verifyPayment(attempt + 1), 1500);
           return;
         }
-        if (!cancelled) { setState("error"); setMessage("Payment is still pending. Refresh your orders in a moment."); }
+
+        if (!cancelled) {
+          setState("error");
+          setMessage("Payment is still pending. Refresh your orders in a moment.");
+        }
       } catch (requestError) {
-        if (!cancelled) { setState("error"); setMessage(getApiErrorMessage(requestError, "Unable to confirm payment")); }
+        if (!cancelled) {
+          setState("error");
+          setMessage(getApiErrorMessage(requestError, "Unable to confirm payment"));
+        }
       }
     };
-    void verifyPayment(0);
-    return () => { cancelled = true; if (timeoutId) clearTimeout(timeoutId); };
+
+    void Promise.resolve().then(() => verifyPayment(0));
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [sessionId]);
 
   return <PaymentState description={message} title={state === "loading" ? "Confirming payment" : state === "success" ? "Payment successful" : "Payment confirmation failed"} />;
