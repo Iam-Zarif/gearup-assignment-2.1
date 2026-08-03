@@ -92,7 +92,7 @@ export default function OrdersTable({
                     {isPaid ? <StatusBadge status="PAID" /> : null}
                     {!canPay && order.status !== "RETURNED" && !isPaid ? (
                       <span className="text-muted-foreground">
-                        {order.status === "PLACED" ? "Awaiting provider confirmation" : "—"}
+                        {order.status === "PLACED" ? "Awaiting" : "—"}
                       </span>
                     ) : null}
                   </div>

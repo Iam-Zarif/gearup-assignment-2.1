@@ -1,22 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, UserCircle, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/src/context/AuthContext";
 import { getMyRentals } from "@/src/services/customer/customer.service";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import TopNavLogo from "./TopNavLogo";
+import TopNavLinks from "./TopNavLinks";
+import TopNavRoleBadge from "./TopNavRoleBadge";
+import TopNavUserMenu from "./TopNavUserMenu";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { LogOut } from "lucide-react";
 
 type NavItem = {
   label: string;
@@ -52,12 +45,13 @@ export default function TopNavbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { user, isLoading, logout } = useAuth();
+  const { user, role, isLoading, logout } = useAuth();
+  const resolvedRole = user?.role ?? role;
   const [orderCount, setOrderCount] = useState(0);
   const [hasFetchedOrderCount, setHasFetchedOrderCount] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== "CUSTOMER") {
+    if (resolvedRole !== "CUSTOMER") {
       setOrderCount(0);
       setHasFetchedOrderCount(false);
       return;
@@ -89,7 +83,7 @@ export default function TopNavbar() {
     return () => {
       mounted = false;
     };
-  }, [pathname, user?.role, hasFetchedOrderCount]);
+  }, [pathname, resolvedRole, hasFetchedOrderCount]);
 
   const HIDDEN_ROUTES = ["/login", "/register"];
 
@@ -97,7 +91,7 @@ export default function TopNavbar() {
     return null;
   }
 
-  if (isLoading) {
+  if (isLoading && !resolvedRole) {
     return (
       <header className="h-16 border-b flex items-center px-6">
         <div className="h-5 w-32 rounded bg-muted animate-pulse" />
@@ -105,22 +99,14 @@ export default function TopNavbar() {
     );
   }
 
-  const isDashboardUser = user?.role === "ADMIN" || user?.role === "PROVIDER";
+  const isDashboardUser = resolvedRole === "ADMIN" || resolvedRole === "PROVIDER";
 
   const links =
-    user?.role === "ADMIN"
+    resolvedRole === "ADMIN"
       ? ADMIN_LINKS
-      : user?.role === "PROVIDER"
+      : resolvedRole === "PROVIDER"
         ? PROVIDER_LINKS
         : CUSTOMER_LINKS;
-
-  function isActive(href: string) {
-    if (href === "/") {
-      return pathname === "/";
-    }
-
-    return pathname === href || pathname.startsWith(`${href}/`);
-  }
 
   async function handleLogout() {
     await logout();
@@ -128,161 +114,34 @@ export default function TopNavbar() {
   }
 
   return (
-    <header
-      className="
-      sticky
-      top-0
-      z-50
-      w-full
-      border-b
-      bg-background/80
-      backdrop-blur
-      "
-    >
-      <div
-        className="mx-auto
-        flex
-        h-16
-        max-w-7xl
-        items-center
-        justify-between
-        px-4
-        "
-      >
-        {/* Logo */}
-
-        <Link
-          href="/"
-          className="
-          text-xl
-          font-bold
-          tracking-tight
-          "
-        >
-          GearUp
-        </Link>
-
-        {/* Admin / Provider */}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+        <TopNavLogo />
 
         {isDashboardUser ? (
-          <Badge
-            variant="default"
-            className="
-            px-4
-            py-3
-            text-sm
-            font-semibold
-            "
-          >
-            {user.role}
-          </Badge>
+          <TopNavRoleBadge role={resolvedRole ?? ""} />
         ) : (
-          /* Customer Navigation */
-
-          <nav
-            className="
-            hidden
-            md:flex
-            items-center
-            gap-6
-            "
-          >
-            {links.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition",
-                  isActive(item.href)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-primary",
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-
-            {user?.role === "CUSTOMER" && (
-              <Link href="/orders" className="relative">
-                <ShoppingCart size={20} />
-
-                {hasFetchedOrderCount ? (
-                  <Badge
-                    className="
-                    absolute
-                    -right-3
-                    -top-3
-                    h-5
-                    px-1
-                    text-xs
-                    "
-                  >
-                    {orderCount}
-                  </Badge>
-                ) : null}
-              </Link>
-            )}
-          </nav>
+          <TopNavLinks
+            links={links}
+            activePath={pathname}
+            showCustomerCart={resolvedRole === "CUSTOMER"}
+            showOrderCount={hasFetchedOrderCount}
+            orderCount={orderCount}
+          />
         )}
-
-        {/* Right Side */}
 
         {isDashboardUser ? (
           <Button
             variant="destructive"
             onClick={() => void handleLogout()}
-            className="
-            flex
-            items-center
-            gap-2
-            "
+            className="flex items-center gap-2"
           >
             <LogOut className="h-4 w-4" />
             Logout
           </Button>
         ) : (
-          <div
-            className="
-            hidden
-            md:flex
-            items-center
-            "
-          >
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Avatar className="cursor-pointer">
-                    <AvatarFallback>
-                      {user.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="flex items-center w-full">
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={() => void handleLogout()}>
-                    <LogOut
-                      className="
-                      mr-2
-                      h-4
-                      w-4
-                      "
-                    />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href="/login">
-                <Button>Login</Button>
-              </Link>
-            )}
+          <div className="hidden md:flex items-center">
+            <TopNavUserMenu user={user} onLogout={handleLogout} />
           </div>
         )}
       </div>

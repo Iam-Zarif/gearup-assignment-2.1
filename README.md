@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GearUp Backend Assignment
 
-## Getting Started
+**Student ID:** L2B7-0284
+**Project:** GearUp
 
-First, run the development server:
+## 🔗 Links
+- Live API: https://gear-up-assignment.vercel.app
+- Local API: http://localhost:5001
+- GitHub Repo: https://github.com/Iam-Zarif/gearUp-assignment
+- ERD: https://drawsql.app/teams/webefo/diagrams/gearup/embed
+- Folder Structure: https://github.com/Iam-Zarif/gearUp-assignment/blob/main/folder_structure.md
+- Postman Collection: https://github.com/Iam-Zarif/gearUp-assignment/tree/main/postman
+- API Walkthrough: https://drive.google.com/file/d/1fUVNBNrIILGMPHD1qxDS7fR03mop30ip/view?usp=sharing
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠️ Admin Credentials
+- Email: admin@gearup.com
+- Password: admin123
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Development Approach
+1. Designed the ERD manually.
+2. Installed and configured required technologies.
+3. Set up Prisma, Stripe, environment variables, and server configuration.
+4. Planned folder structure before implementation.
+5. Built and tested modules service-by-service using Postman.
+6. Committed progress with logical versioned commits.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧱 Database Note
+Main tables used:
+- Users
+- GearItems
+- Categories
+- RentalOrders
+- Payments
+- Reviews
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Added an extra bridge table:
+- RentalOrderItems
 
-## Learn More
+Reason: one rental order may contain multiple gear items, and one gear item may be rented across multiple orders. This follows module guidelines by avoiding a direct many-to-many relation.
 
-To learn more about Next.js, take a look at the following resources:
+## 📚 API Documentation
+Postman collections are organized per feature inside the `postman/` folder.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Dynamic request variables
+- `AdminToken` — Admin JWT token
+- `ProviderToken` — Provider JWT token
+- `CustomerToken` — Customer JWT token
+- `userId` — User id for admin actions
+- `categoryId` — Category id for category update/delete
+- `gearItemId` — Gear item id for gear, rental, and review APIs
+- `rentalOrderId` — Rental order id for payment, provider order, and review APIs
+- `paymentId` — Payment id for payment details
+- `reviewId` — Review id for review details/update/delete
+- `sessionId` — Stripe checkout session id for payment confirmation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📁 Notes
+- The project is built with a modular structure for admin, provider, and customer flows.
+- Environment variables are used for secure API and Stripe integration.

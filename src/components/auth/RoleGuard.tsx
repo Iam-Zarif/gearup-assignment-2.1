@@ -9,15 +9,16 @@ type Props = {
 };
 
 export default function RoleGuard({ allowedRoles, children }: Props) {
-  const { isLoading, user } = useAuth();
+  const { isLoading, user, role } = useAuth();
+  const resolvedRole = user?.role ?? role;
 
-  if (isLoading) {
+  if (isLoading && !resolvedRole) {
     return <div className="flex min-h-[60vh] items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>;
   }
 
-  if (!user || !allowedRoles.includes(user.role)) {
+  if (!resolvedRole || !allowedRoles.includes(resolvedRole)) {
     return (
       <section className="mx-auto max-w-xl py-20 text-center">
         <h1 className="text-3xl font-semibold">Access denied</h1>

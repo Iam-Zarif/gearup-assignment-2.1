@@ -7,9 +7,10 @@ import CustomerHome from "@/components/customer/home/CustomerHome";
 import DynamicLoader from "@/src/components/shared/DynamicLoader";
 
 export default function Home() {
-  const { user, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
+  const resolvedRole = user?.role ?? role;
 
-  if (isLoading) {
+  if (isLoading && !resolvedRole) {
     return (
       <div className="min-h-screen bg-background">
         <DynamicLoader
@@ -22,21 +23,15 @@ export default function Home() {
     );
   }
 
-  if (!user) {
-    return <CustomerHome />;
-  }
-
-  if (user.role === "ADMIN") {
+  if (resolvedRole === "ADMIN") {
     return <AdminDashboard />;
   }
 
-  if (user.role === "PROVIDER") {
+  if (resolvedRole === "PROVIDER") {
     return <ProviderDashboard />;
   }
 
-  if (user.role === "CUSTOMER") {
-    return <CustomerHome />;
-  }
+  return <CustomerHome />;
 
   return null;
 }

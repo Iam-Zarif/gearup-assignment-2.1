@@ -12,11 +12,15 @@ interface Props {
 
 export default function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadUser() {
+      const savedRole = getCookie("role");
+      setRole(savedRole);
+
       try {
         const token = await getCookie("accessToken");
 
@@ -41,14 +45,17 @@ export default function AuthProvider({ children }: Props) {
 
         if (response.ok) {
           setUser(data.data);
+          setRole(data.data.role);
           await setCookie("role", data.data.role);
         } else {
           await removeCookie("accessToken");
           await removeCookie("role");
+          setRole(null);
         }
       } catch {
         await removeCookie("accessToken");
         await removeCookie("role");
+        setRole(null);
       } finally {
         setIsLoading(false);
       }
@@ -74,7 +81,7 @@ export default function AuthProvider({ children }: Props) {
     );
 
     await setCookie("role", user.role);
-
+    setRole(user.role);
 
     setAccessToken(accessToken);
 
@@ -111,6 +118,7 @@ export default function AuthProvider({ children }: Props) {
     await removeCookie("role");
 
     setUser(null);
+    setRole(null);
 
     setAccessToken(null);
   }
@@ -123,6 +131,7 @@ export default function AuthProvider({ children }: Props) {
     <AuthContext.Provider
       value={{
         user,
+        role,
         accessToken,
         isLoading,
         login,

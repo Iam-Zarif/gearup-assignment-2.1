@@ -19,7 +19,7 @@ export default function ProviderShell({
   );
 
   return (
-    <RoleGuard allowedRoles={["PROVIDER"]]}>
+    <RoleGuard allowedRoles={["PROVIDER"]}>
       {enableProviderData ? <ProviderProvider>{layout}</ProviderProvider> : layout}
     </RoleGuard>
   );

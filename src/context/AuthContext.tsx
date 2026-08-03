@@ -15,6 +15,8 @@ export interface User {
 interface AuthContextType {
   user: User | null;
 
+  role: string | null;
+
   isLoading: boolean;
 
   accessToken: string | null;
