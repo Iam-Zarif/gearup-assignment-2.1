@@ -16,6 +16,9 @@
 
 - Admin Password : admin123
 
+## API Documentation
+- <a href ="https://github.com/Iam-Zarif/gearup-assignment-2.1/blob/main/API_DOC.md">For Frontend Dev</a>
+
 ## 🛠️ Admin Credentials
 - Email: admin@gearup.com
 - Password: admin123
